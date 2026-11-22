@@ -1,0 +1,3299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="carbon">
+  <title>Edit Flow — Production &amp; Post-Production Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+
+      /* User-specified Navy & Silver Palette + Carbon Structural Tokens */
+      --color-navy-950: #081426;
+      --color-navy-900: #0D1B2A;
+      --color-navy-800: #14263D;
+      --color-navy-700: #1D3553;
+      --color-primary: #315E91;
+      --color-page: #F1F3F5;
+      --color-surface: #FFFFFF;
+      --color-surface-alt: #F8FAFC;
+      --color-border: #E2E6EA;
+      --color-text: #101820;
+      --color-muted: #6D7885;
+      --color-white: #FFFFFF;
+      --color-on-navy: #F1F5F9;
+      --color-on-navy-muted: #AEB8C3;
+
+      /* Semantic tokens */
+      --color-success: #1E9B68;
+      --color-success-bg: #E8F6F0;
+      --color-warning: #D99A32;
+      --color-warning-bg: #FDF5E6;
+      --color-danger: #D9535D;
+      --color-danger-bg: #FCEEEF;
+      --color-info: #397BB7;
+      --color-info-bg: #EAF2FA;
+
+      /* Carbon mappings */
+      --background: var(--color-page);
+      --surface-container: var(--color-surface);
+      --surface-container-low: var(--color-surface-alt);
+      --surface-container-high: var(--color-border);
+      --on-surface: var(--color-text);
+      --on-surface-variant: var(--color-muted);
+      --primary: var(--color-primary);
+      --on-primary: var(--color-white);
+      --outline: var(--color-muted);
+      --outline-variant: var(--color-border);
+      --positive: var(--color-success);
+      --warning: var(--color-warning);
+      --error: var(--color-danger);
+      --focus: var(--color-primary);
+
+      /* Data series */
+      --data-1: #315E91;
+      --data-2: #1E9B68;
+      --data-3: #D99A32;
+      --data-4: #397BB7;
+      --data-5: #1D3553;
+      --data-context: #AEB8C3;
+
+      /* Typography */
+      --font-headline: 'Inter', 'Segoe UI', Arial, sans-serif;
+      --font-body: 'Inter', 'Segoe UI', Arial, sans-serif;
+      --font-label: 'IBM Plex Mono', monospace;
+
+      --display-size: clamp(1.5rem, 1.25rem + 0.8vw, 1.875rem);
+      --headline-size: clamp(1.125rem, 1rem + 0.35vw, 1.25rem);
+      --subhead-size: 1rem;
+      --body-size: 0.9375rem;
+      --label-size: 0.75rem;
+
+      /* Spacing & Shape */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2rem;
+      --radius-card: 12px;
+      --radius-control: 8px;
+      --radius-pill: 999px;
+      --sidebar-width: 248px;
+
+      /* Shadows & Motion */
+      --shadow-sm: 0 1px 3px rgb(16 24 32 / 0.06);
+      --shadow-md: 0 8px 24px rgb(8 20 38 / 0.14);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow-x: clip;
+      background: var(--background);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* App Shell */
+    .app-shell {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--color-navy-950);
+      color: var(--color-on-navy);
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--color-navy-800);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      z-index: 30;
+    }
+
+    .brand-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-lg) var(--space-md);
+      border-bottom: 1px solid var(--color-navy-800);
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-control);
+      background: var(--color-primary);
+      color: var(--color-white);
+      display: grid;
+      place-items: center;
+      font-family: var(--font-label);
+      font-weight: 600;
+      font-size: 0.875rem;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      color: var(--color-white);
+    }
+
+    .brand-sub {
+      font-family: var(--font-label);
+      font-size: 0.6875rem;
+      color: var(--color-on-navy-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .nav-list {
+      list-style: none;
+      margin: 0;
+      padding: var(--space-md) var(--space-sm);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .nav-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: 0.6875rem var(--space-md);
+      background: transparent;
+      border: 0;
+      border-left: 3px solid transparent;
+      border-radius: var(--radius-control);
+      color: var(--color-on-navy-muted);
+      font-weight: 500;
+      font-size: 0.9rem;
+      text-align: left;
+      cursor: pointer;
+      min-height: 44px;
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out);
+    }
+
+    .nav-btn:hover {
+      background: var(--color-navy-800);
+      color: var(--color-white);
+    }
+
+    .nav-btn.is-active {
+      background: var(--color-navy-700);
+      color: var(--color-white);
+      border-left-color: var(--color-info);
+      font-weight: 600;
+    }
+
+    .nav-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .sidebar-footer {
+      padding: var(--space-md);
+      border-top: 1px solid var(--color-navy-800);
+      font-size: 0.75rem;
+      color: var(--color-on-navy-muted);
+    }
+
+    .proto-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-control);
+      background: var(--color-navy-800);
+      color: var(--color-on-navy);
+      font-family: var(--font-label);
+      font-size: 0.6875rem;
+      margin-bottom: var(--space-xs);
+    }
+
+    /* Main Workspace */
+    .main-area {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .topbar {
+      background: var(--surface-container);
+      border-bottom: 1px solid var(--outline-variant);
+      padding: var(--space-sm) var(--space-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--outline-variant);
+      background: var(--surface-container);
+      border-radius: var(--radius-control);
+      cursor: pointer;
+    }
+
+    .global-search-wrap {
+      position: relative;
+      flex: 1;
+      max-width: 380px;
+    }
+
+    .global-search-wrap svg {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--on-surface-variant);
+      pointer-events: none;
+    }
+
+    .global-search-input {
+      width: 100%;
+      height: 40px;
+      padding: 0 0.75rem 0 2.25rem;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-control);
+      background: var(--surface-container-low);
+      font-size: 0.875rem;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .live-timer-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: 0.375rem 0.75rem;
+      border-radius: var(--radius-pill);
+      background: var(--color-info-bg);
+      color: var(--color-navy-800);
+      font-family: var(--font-label);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border: 1px solid var(--color-info);
+      cursor: pointer;
+      min-height: 36px;
+    }
+
+    .live-timer-pill.is-idle {
+      background: var(--surface-container-low);
+      color: var(--on-surface-variant);
+      border-color: var(--outline-variant);
+    }
+
+    .profile-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: 0.25rem 0.625rem 0.25rem 0.25rem;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-pill);
+      background: var(--surface-container);
+      font-size: 0.8125rem;
+      font-weight: 500;
+    }
+
+    .avatar-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-pill);
+      background: var(--color-navy-800);
+      color: var(--color-white);
+      display: grid;
+      place-items: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* Page Content */
+    .page-content {
+      padding: var(--space-lg);
+      max-width: 1360px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+    }
+
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+      padding-bottom: var(--space-md);
+      border-bottom: 1px solid var(--outline-variant);
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: var(--display-size);
+      font-weight: 600;
+      line-height: 1.2;
+      color: var(--on-surface);
+    }
+
+    .page-desc {
+      margin: var(--space-xs) 0 0;
+      color: var(--on-surface-variant);
+      font-size: 0.9375rem;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+    }
+
+    /* Cards & Grids */
+    .card {
+      background: var(--surface-container);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-card);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+      min-width: 0;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+      flex-wrap: wrap;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: var(--headline-size);
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+
+    .kpi-card {
+      background: var(--surface-container);
+      border: 1px solid var(--outline-variant);
+      border-top: 3px solid var(--primary);
+      border-radius: var(--radius-card);
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .kpi-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--on-surface-variant);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .kpi-val {
+      font-family: var(--font-label);
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--on-surface);
+      line-height: 1.15;
+    }
+
+    .kpi-sub {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8125rem;
+      color: var(--on-surface-variant);
+      margin-top: var(--space-xs);
+    }
+
+    .link-btn {
+      background: none;
+      border: 0;
+      padding: 0;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 0.8125rem;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .split-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
+      gap: var(--space-lg);
+    }
+
+    .split-grid-asym {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+      gap: var(--space-lg);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      min-height: 40px;
+      padding: 0 var(--space-md);
+      border-radius: var(--radius-control);
+      border: 1px solid transparent;
+      font-weight: 500;
+      font-size: 0.875rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+    }
+
+    .btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .btn-sm { min-height: 34px; padding: 0 0.625rem; font-size: 0.8125rem; }
+
+    .btn-primary { background: var(--primary); color: var(--on-primary); }
+    .btn-primary:hover { background: var(--color-navy-700); }
+
+    .btn-secondary { background: var(--color-navy-900); color: var(--color-white); }
+    .btn-secondary:hover { background: var(--color-navy-800); }
+
+    .btn-outline { background: var(--surface-container); border-color: var(--outline-variant); color: var(--on-surface); }
+    .btn-outline:hover { background: var(--surface-container-low); border-color: var(--outline); }
+
+    .btn-success { background: var(--color-success); color: var(--color-white); }
+    .btn-warning { background: var(--color-warning); color: var(--color-white); }
+    .btn-danger { background: var(--color-danger); color: var(--color-white); }
+    .btn-danger-outline { background: var(--surface-container); border-color: var(--color-danger); color: var(--color-danger); }
+
+    /* Forms & Filter Bars */
+    .filter-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(165px, 100%), 1fr));
+      gap: var(--space-sm);
+      align-items: end;
+      background: var(--surface-container);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-card);
+      padding: var(--space-md);
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      min-width: 0;
+    }
+
+    .field label {
+      font-size: var(--label-size);
+      font-weight: 600;
+      color: var(--on-surface-variant);
+      font-family: var(--font-label);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .input, .select, .textarea {
+      width: 100%;
+      min-height: 40px;
+      padding: 0.45rem 0.75rem;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-control);
+      background: var(--surface-container-low);
+      color: var(--on-surface);
+      font-size: 0.875rem;
+    }
+
+    .textarea { min-height: 78px; resize: vertical; }
+
+    /* Tables */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-control);
+      background: var(--surface-container);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      min-width: 700px;
+    }
+
+    th {
+      background: var(--surface-container-low);
+      color: var(--on-surface-variant);
+      font-family: var(--font-label);
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      text-align: left;
+      padding: 0.75rem 0.875rem;
+      border-bottom: 1px solid var(--outline-variant);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 0.75rem 0.875rem;
+      border-bottom: 1px solid var(--outline-variant);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: var(--surface-container-low); }
+
+    .mono { font-family: var(--font-label); font-variant-numeric: tabular-nums; }
+    .text-right { text-align: right; }
+
+    /* Badges & Status */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+
+    .badge-success { background: var(--color-success-bg); color: var(--color-success); border-color: var(--color-success); }
+    .badge-warning { background: var(--color-warning-bg); color: var(--color-warning); border-color: var(--color-warning); }
+    .badge-danger { background: var(--color-danger-bg); color: var(--color-danger); border-color: var(--color-danger); }
+    .badge-info { background: var(--color-info-bg); color: var(--color-info); border-color: var(--color-info); }
+    .badge-neutral { background: var(--surface-container-low); color: var(--on-surface-variant); border-color: var(--outline-variant); }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: var(--radius-pill);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .dot-online { background: var(--color-success); }
+    .dot-offline { background: var(--color-danger); }
+
+    /* Progress Bar */
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--outline-variant);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: var(--radius-pill);
+      transition: width var(--dur-short) var(--ease-out);
+    }
+
+    /* Timer Hero Panel */
+    .timer-hero {
+      background: var(--color-navy-950);
+      color: var(--color-white);
+      border-radius: var(--radius-card);
+      padding: var(--space-lg);
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: var(--space-lg);
+      align-items: center;
+    }
+
+    .timer-display {
+      font-family: var(--font-label);
+      font-size: clamp(2.25rem, 1.8rem + 1.5vw, 3.25rem);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--color-white);
+      margin: var(--space-sm) 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer-meta-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: var(--space-sm);
+      font-size: 0.8125rem;
+      color: var(--color-on-navy-muted);
+    }
+
+    .timer-meta-list strong {
+      display: block;
+      color: var(--color-white);
+      font-size: 0.875rem;
+    }
+
+    /* Charts */
+    .chart-box { min-height: 220px; display: flex; flex-direction: column; justify-content: center; }
+    .bar-row { display: grid; grid-template-columns: 150px minmax(0, 1fr) 56px; gap: var(--space-sm); align-items: center; margin-bottom: var(--space-sm); }
+    .bar-track { height: 14px; background: var(--surface-container-low); border: 1px solid var(--outline-variant); border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 3px; }
+
+    /* Notice Banner */
+    .notice-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--color-info-bg);
+      border-left: 4px solid var(--color-info);
+      border-radius: var(--radius-control);
+      font-size: 0.8125rem;
+      color: var(--on-surface);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: var(--space-xl) var(--space-md);
+      color: var(--on-surface-variant);
+      border: 1px dashed var(--outline-variant);
+      border-radius: var(--radius-card);
+      background: var(--surface-container-low);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgb(8 20 38 / 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-md);
+      z-index: 60;
+    }
+
+    .modal-backdrop.is-open { display: flex; }
+
+    .modal-panel {
+      background: var(--surface-container);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-card);
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-md);
+      padding: var(--space-lg);
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: var(--space-sm);
+      border-bottom: 1px solid var(--outline-variant);
+      margin-bottom: var(--space-md);
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+
+    .form-error {
+      color: var(--color-danger);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      margin-top: var(--space-xs);
+    }
+
+    /* Toast */
+    .toast-stack {
+      position: fixed;
+      right: var(--space-lg);
+      bottom: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      z-index: 80;
+      max-width: 340px;
+    }
+
+    .toast {
+      background: var(--color-navy-950);
+      color: var(--color-white);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-control);
+      border-left: 4px solid var(--color-success);
+      box-shadow: var(--shadow-md);
+      font-size: 0.875rem;
+    }
+
+    .toast.is-error { border-left-color: var(--color-danger); }
+    .toast.is-warn { border-left-color: var(--color-warning); }
+
+    /* Views */
+    .view-section { display: none; flex-direction: column; gap: var(--space-lg); }
+    .view-section.is-active { display: flex; }
+
+    /* Color Swatches in Settings */
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+
+    .color-picker-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-control);
+      padding: 0.375rem 0.625rem;
+      background: var(--surface-container-low);
+    }
+
+    .color-picker-row input[type="color"] {
+      width: 34px;
+      height: 28px;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    /* Mobile Drawer & Breakpoints */
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgb(8 20 38 / 0.5);
+      z-index: 25;
+    }
+
+    @media (max-width: 900px) {
+      .split-grid-asym, .timer-hero { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar {
+        position: fixed;
+        left: -260px;
+        width: var(--sidebar-width);
+        transition: left var(--dur-short) var(--ease-out);
+      }
+      .sidebar.is-open { left: 0; }
+      .drawer-overlay.is-open { display: block; }
+      .mobile-menu-btn { display: inline-flex; }
+      .page-content { padding: var(--space-md); }
+    }
+
+    @media (max-width: 640px) {
+      .bar-row { grid-template-columns: 1fr; gap: 0.25rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="drawer-overlay" id="drawer-overlay" onclick="toggleMobileSidebar(false)"></div>
+
+  <div class="app-shell">
+    <!-- Persistent Sidebar -->
+    <aside class="sidebar" id="app-sidebar" aria-label="Primary Navigation">
+      <div class="brand-bar">
+        <div class="brand-mark" aria-hidden="true">EF</div>
+        <div>
+          <div class="brand-title" id="sidebar-company-name">EDIT FLOW</div>
+          <div class="brand-sub">Studio Operations</div>
+        </div>
+      </div>
+
+      <ul class="nav-list" role="tablist" aria-orientation="vertical">
+        <li><button type="button" class="nav-btn is-active" data-view="dashboard" onclick="navigateTo('dashboard')"><i data-lucide="layout-dashboard" aria-hidden="true"></i><span>Dashboard</span></button></li>
+        <li><button type="button" class="nav-btn" data-view="projects" onclick="navigateTo('projects')"><i data-lucide="folder-kanban" aria-hidden="true"></i><span>Projects</span></button></li>
+        <li><button type="button" class="nav-btn" data-view="time-tracker" onclick="navigateTo('time-tracker')"><i data-lucide="timer" aria-hidden="true"></i><span>Time Tracker</span></button></li>
+        <li><button type="button" class="nav-btn" data-view="members" onclick="navigateTo('members')"><i data-lucide="users" aria-hidden="true"></i><span>Members</span></button></li>
+        <li><button type="button" class="nav-btn" data-view="project-overview" onclick="navigateTo('project-overview')"><i data-lucide="chart-no-axes-combined" aria-hidden="true"></i><span>Project Overview</span></button></li>
+        <li><button type="button" class="nav-btn" data-view="finance-tracker" onclick="navigateTo('finance-tracker')"><i data-lucide="wallet" aria-hidden="true"></i><span>Finance Tracker</span></button></li>
+        <li><button type="button" class="nav-btn" data-view="settings" onclick="navigateTo('settings')"><i data-lucide="settings" aria-hidden="true"></i><span>Settings</span></button></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="proto-badge">LOCAL PROTOTYPE</div>
+        <div>Browser-local state only. Multi-user sync &amp; desktop software detection require a backend/agent.</div>
+      </div>
+    </aside>
+
+    <!-- Main Content Shell -->
+    <div class="main-area">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button type="button" class="mobile-menu-btn" aria-label="Open navigation menu" onclick="toggleMobileSidebar(true)">
+            <i data-lucide="menu" aria-hidden="true"></i>
+          </button>
+          <div class="global-search-wrap">
+            <i data-lucide="search" aria-hidden="true"></i>
+            <input type="search" id="global-search" class="global-search-input" placeholder="Search tasks, projects, members..." aria-label="Global workspace search" oninput="handleGlobalSearch(this.value)">
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button type="button" id="topbar-timer-pill" class="live-timer-pill is-idle" onclick="navigateTo('time-tracker')" title="Go to Time Tracker">
+            <i data-lucide="clock" aria-hidden="true"></i>
+            <span id="topbar-timer-text">No active timer</span>
+          </button>
+          <div class="profile-chip">
+            <span class="avatar-dot">NP</span>
+            <span>Studio Admin</span>
+          </div>
+        </div>
+      </header>
+
+      <main class="page-content" id="main-content">
+        <!-- 1. DASHBOARD -->
+        <section id="view-dashboard" class="view-section is-active" aria-labelledby="title-dashboard">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="title-dashboard">Dashboard</h1>
+              <p class="page-desc">Company-wide summary of editing projects, tracked software hours, team presence, and member payouts.</p>
+            </div>
+            <div class="header-actions">
+              <button type="button" class="btn btn-outline" onclick="navigateTo('time-tracker')"><i data-lucide="play" aria-hidden="true"></i>Start Timer</button>
+              <button type="button" class="btn btn-primary" onclick="openTaskModal()"><i data-lucide="plus" aria-hidden="true"></i>Add Task</button>
+            </div>
+          </div>
+
+          <div class="kpi-grid" id="dashboard-kpis"></div>
+
+          <div class="split-grid-asym">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Time Tracking by Software</h2>
+                <span class="mono" id="dash-hours-summary" style="font-size:0.8125rem;color:var(--on-surface-variant);"></span>
+              </div>
+              <div id="dash-software-chart" class="chart-box"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Project Time Distribution</h2>
+                <button type="button" class="link-btn" onclick="navigateTo('time-tracker')">Open logs</button>
+              </div>
+              <div id="dash-project-donut" class="chart-box"></div>
+            </div>
+          </div>
+
+          <div class="split-grid-2">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Payment Status Summary</h2>
+                <button type="button" class="link-btn" onclick="navigateTo('finance-tracker')">Manage finance</button>
+              </div>
+              <div id="dash-finance-summary"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Team Presence &amp; Active Timers</h2>
+                <button type="button" class="link-btn" onclick="navigateTo('members')">All members</button>
+              </div>
+              <div id="dash-members-presence"></div>
+            </div>
+          </div>
+
+          <div class="split-grid-asym">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Project Progress Snapshot</h2>
+                <button type="button" class="link-btn" onclick="navigateTo('project-overview')">View deliverables</button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Project</th>
+                      <th>Status</th>
+                      <th>Progress</th>
+                      <th>Deadline</th>
+                      <th>Output</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dash-projects-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Recent Activity</h2>
+              </div>
+              <div id="dash-activity-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. PROJECTS (TASK WORKSPACE) -->
+        <section id="view-projects" class="view-section" aria-labelledby="title-projects">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="title-projects">Projects &amp; Task Grid</h1>
+              <p class="page-desc">Create unlimited tasks, assign responsible editors, and organize production workloads across projects.</p>
+            </div>
+            <div class="header-actions">
+              <button type="button" class="btn btn-outline" onclick="openProjectModal()"><i data-lucide="folder-plus" aria-hidden="true"></i>New Project</button>
+              <button type="button" class="btn btn-primary" onclick="openTaskModal()"><i data-lucide="plus" aria-hidden="true"></i>Add Task</button>
+            </div>
+          </div>
+
+          <div class="filter-bar">
+            <div class="field">
+              <label for="filter-task-search">Search Task / Project</label>
+              <input id="filter-task-search" type="search" class="input" placeholder="Keyword..." oninput="renderProjectsView()">
+            </div>
+            <div class="field">
+              <label for="filter-task-project">Project</label>
+              <select id="filter-task-project" class="select" onchange="renderProjectsView()"></select>
+            </div>
+            <div class="field">
+              <label for="filter-task-member">Assigned Member</label>
+              <select id="filter-task-member" class="select" onchange="renderProjectsView()"></select>
+            </div>
+            <div class="field">
+              <label for="filter-task-status">Status</label>
+              <select id="filter-task-status" class="select" onchange="renderProjectsView()">
+                <option value="all">All Statuses</option>
+                <option value="todo">To Do</option>
+                <option value="in_progress">In Progress</option>
+                <option value="in_review">In Review</option>
+                <option value="on_hold">On Hold</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="filter-task-priority">Priority</label>
+              <select id="filter-task-priority" class="select" onchange="renderProjectsView()">
+                <option value="all">All Priorities</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="sort-tasks">Sort By</label>
+              <select id="sort-tasks" class="select" onchange="renderProjectsView()">
+                <option value="dueDate">Due Date</option>
+                <option value="createdAt">Created Date</option>
+                <option value="priority">Priority</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="card" style="padding:0;overflow:hidden;">
+            <div class="table-wrap" style="border:0;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Task</th>
+                    <th>Project Title</th>
+                    <th>Assigned Member</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Due Date</th>
+                    <th>Est. Hrs</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="tasks-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. TIME TRACKER -->
+        <section id="view-time-tracker" class="view-section" aria-labelledby="title-time-tracker">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="title-time-tracker">Time Tracker</h1>
+              <p class="page-desc">Track editing sessions by member, editing software, project, and work file using timestamp-accurate timers.</p>
+            </div>
+            <div class="header-actions">
+              <button type="button" class="btn btn-outline" onclick="openSoftwareModal()"><i data-lucide="cpu" aria-hidden="true"></i>Manage Software</button>
+              <button type="button" class="btn btn-outline" onclick="openManualTimeModal()"><i data-lucide="plus-circle" aria-hidden="true"></i>Manual Entry</button>
+              <button type="button" class="btn btn-primary" onclick="exportTimeCsv()"><i data-lucide="download" aria-hidden="true"></i>Export CSV</button>
+            </div>
+          </div>
+
+          <div class="notice-banner">
+            <i data-lucide="info" aria-hidden="true" style="width:18px;height:18px;flex-shrink:0;"></i>
+            <div><strong>Manual Selection Mode:</strong> Browsers cannot automatically detect open desktop applications like Premiere Pro or DaVinci Resolve. Select your software, project, and file name before starting a session. Automatic desktop detection is scoped for a future native companion agent.</div>
+          </div>
+
+          <div class="timer-hero" id="timer-hero-panel">
+            <div>
+              <span class="badge badge-info" id="timer-status-badge">READY TO TRACK</span>
+              <div class="timer-display" id="stopwatch-display">00:00:00</div>
+              <div class="timer-meta-list" id="active-session-meta">
+                <div><span>Member</span><strong id="meta-member">Select below</strong></div>
+                <div><span>Software</span><strong id="meta-software">Select below</strong></div>
+                <div><span>Project</span><strong id="meta-project">Select below</strong></div>
+                <div><span>Work / File</span><strong id="meta-file">—</strong></div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+              <div class="form-grid-2">
+                <div class="field">
+                  <label for="timer-member" style="color:var(--color-on-navy-muted);">Member</label>
+                  <select id="timer-member" class="select"></select>
+                </div>
+                <div class="field">
+                  <label for="timer-software" style="color:var(--color-on-navy-muted);">Software</label>
+                  <select id="timer-software" class="select"></select>
+                </div>
+                <div class="field">
+                  <label for="timer-project" style="color:var(--color-on-navy-muted);">Project</label>
+                  <select id="timer-project" class="select" onchange="populateTimerTasks()"></select>
+                </div>
+                <div class="field">
+                  <label for="timer-task" style="color:var(--color-on-navy-muted);">Task (Optional)</label>
+                  <select id="timer-task" class="select"></select>
+                </div>
+              </div>
+              <div class="field">
+                <label for="timer-file" style="color:var(--color-on-navy-muted);">Work / File Name</label>
+                <input id="timer-file" type="text" class="input" placeholder="e.g., Brand_Promo_Rough_Cut.prproj">
+              </div>
+              <div style="display:flex;gap:0.5rem;flex-wrap:wrap;" id="timer-controls-row">
+                <button type="button" class="btn btn-success" id="btn-timer-start" onclick="startTimer()"><i data-lucide="play" aria-hidden="true"></i>Start Timer</button>
+                <button type="button" class="btn btn-warning" id="btn-timer-pause" onclick="pauseOrResumeTimer()" style="display:none;"><i data-lucide="pause" aria-hidden="true"></i>Pause</button>
+                <button type="button" class="btn btn-danger" id="btn-timer-stop" onclick="stopTimer(this)" style="display:none;"><i data-lucide="square" aria-hidden="true"></i>Stop &amp; Save</button>
+              </div>
+              <div id="timer-error" class="form-error" style="color:var(--color-warning);display:none;"></div>
+            </div>
+          </div>
+
+          <div class="filter-bar">
+            <div class="field">
+              <label for="filter-time-member">Member</label>
+              <select id="filter-time-member" class="select" onchange="renderTimeTrackerView()"></select>
+            </div>
+            <div class="field">
+              <label for="filter-time-software">Software</label>
+              <select id="filter-time-software" class="select" onchange="renderTimeTrackerView()"></select>
+            </div>
+            <div class="field">
+              <label for="filter-time-project">Project</label>
+              <select id="filter-time-project" class="select" onchange="renderTimeTrackerView()"></select>
+            </div>
+            <div class="field">
+              <label>Filtered Total</label>
+              <div class="mono" id="time-filtered-total" style="font-size:1.125rem;font-weight:600;min-height:40px;display:flex;align-items:center;">0h 00m</div>
+            </div>
+          </div>
+
+          <div class="card" style="padding:0;overflow:hidden;">
+            <div class="table-wrap" style="border:0;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Member</th>
+                    <th>Software</th>
+                    <th>Project</th>
+                    <th>Work / File</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Duration</th>
+                    <th>Type</th>
+                    <th class="text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="time-logs-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. MEMBERS -->
+        <section id="view-members" class="view-section" aria-labelledby="title-members">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="title-members">Members</h1>
+              <p class="page-desc">Manage studio team members, job titles, account status, and simulated online/offline availability.</p>
+            </div>
+            <div class="header-actions">
+              <button type="button" class="btn btn-primary" onclick="openMemberModal()"><i data-lucide="user-plus" aria-hidden="true"></i>Register Member</button>
+            </div>
+          </div>
+
+          <div class="filter-bar">
+            <div class="field">
+              <label for="filter-member-search">Search Name or Title</label>
+              <input id="filter-member-search" type="search" class="input" placeholder="Search members..." oninput="renderMembersView()">
+            </div>
+            <div class="field">
+              <label for="filter-member-presence">Presence</label>
+              <select id="filter-member-presence" class="select" onchange="renderMembersView()">
+                <option value="all">All Presence</option>
+                <option value="online">Online Only</option>
+                <option value="offline">Offline Only</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="filter-member-status">Account Status</label>
+              <select id="filter-member-status" class="select" onchange="renderMembersView()">
+                <option value="all">All Accounts</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="cards-grid" id="members-grid"></div>
+        </section>
+
+        <!-- 5. PROJECT OVERVIEW -->
+        <section id="view-project-overview" class="view-section" aria-labelledby="title-project-overview">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="title-project-overview">Project Overview</h1>
+              <p class="page-desc">Monitor overall project progress calculated from task completion, track deadlines, and store final output links.</p>
+            </div>
+            <div class="header-actions">
+              <button type="button" class="btn btn-primary" onclick="openProjectModal()"><i data-lucide="folder-plus" aria-hidden="true"></i>Add Project</button>
+            </div>
+          </div>
+
+          <div class="filter-bar">
+            <div class="field">
+              <label for="filter-overview-search">Search Project</label>
+              <input id="filter-overview-search" type="search" class="input" placeholder="Project name or ID..." oninput="renderProjectOverviewView()">
+            </div>
+            <div class="field">
+              <label for="filter-overview-status">Project Status</label>
+              <select id="filter-overview-status" class="select" onchange="renderProjectOverviewView()">
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="not_started">Not Started</option>
+                <option value="in_progress">In Progress</option>
+                <option value="under_review">Under Review</option>
+                <option value="overdue">Overdue</option>
+                <option value="completed">Completed</option>
+                <option value="on_hold">On Hold</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="sort-overview">Sort By</label>
+              <select id="sort-overview" class="select" onchange="renderProjectOverviewView()">
+                <option value="dueDate">Deadline</option>
+                <option value="progress">Progress %</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="cards-grid" id="project-overview-grid"></div>
+        </section>
+
+        <!-- 6. FINANCE TRACKER -->
+        <section id="view-finance-tracker" class="view-section" aria-labelledby="title-finance-tracker">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="title-finance-tracker">Finance Tracker</h1>
+              <p class="page-desc">Member-wise and project-wise payment tracking, agreed rates, overtime hours, advances, and invoice submissions.</p>
+            </div>
+            <div class="header-actions">
+              <button type="button" class="btn btn-outline" onclick="openInvoiceModal()"><i data-lucide="file-up" aria-hidden="true"></i>Submit Invoice</button>
+              <button type="button" class="btn btn-outline" onclick="openPaymentModal()"><i data-lucide="credit-card" aria-hidden="true"></i>Record Payment</button>
+              <button type="button" class="btn btn-primary" onclick="openFinanceRecordModal()"><i data-lucide="plus" aria-hidden="true"></i>Add Rate Record</button>
+            </div>
+          </div>
+
+          <div class="kpi-grid" id="finance-kpis"></div>
+
+          <div class="filter-bar">
+            <div class="field">
+              <label for="filter-fin-member">Member</label>
+              <select id="filter-fin-member" class="select" onchange="renderFinanceView()"></select>
+            </div>
+            <div class="field">
+              <label for="filter-fin-project">Project</label>
+              <select id="filter-fin-project" class="select" onchange="renderFinanceView()"></select>
+            </div>
+            <div class="field">
+              <label for="filter-fin-status">Payment Status</label>
+              <select id="filter-fin-status" class="select" onchange="renderFinanceView()">
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="advance_paid">Advance Paid</option>
+                <option value="partially_paid">Partially Paid</option>
+                <option value="paid">Paid</option>
+                <option value="overdue">Overdue</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="card" style="padding:0;overflow:hidden;">
+            <div class="table-wrap" style="border:0;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Member</th>
+                    <th>Project</th>
+                    <th>Rate</th>
+                    <th class="text-right">Hours</th>
+                    <th class="text-right">Overtime</th>
+                    <th class="text-right">Total Due</th>
+                    <th class="text-right">Paid</th>
+                    <th class="text-right">Balance</th>
+                    <th>Status</th>
+                    <th>Invoice</th>
+                    <th class="text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="finance-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="split-grid-2">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Submitted Member Invoices</h2>
+              </div>
+              <div id="invoices-list"></div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Payment History Ledger</h2>
+              </div>
+              <div id="payment-history-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. SETTINGS -->
+        <section id="view-settings" class="view-section" aria-labelledby="title-settings">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="title-settings">Settings</h1>
+              <p class="page-desc">Customize theme colors, company profile, editing software list, overtime policy, and local prototype data.</p>
+            </div>
+            <div class="header-actions">
+              <button type="button" class="btn btn-outline" onclick="resetThemeDefaults()">Reset Theme</button>
+              <button type="button" class="btn btn-primary" onclick="saveSettingsForm()">Save Settings</button>
+            </div>
+          </div>
+
+          <div class="split-grid-2">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Theme &amp; Appearance</h2>
+              </div>
+              <div class="field" style="margin-bottom:1rem;">
+                <label for="setting-preset">Theme Preset</label>
+                <select id="setting-preset" class="select" onchange="applyThemePreset(this.value)">
+                  <option value="navy_silver">Navy &amp; Silver (Default)</option>
+                  <option value="midnight_blue">Midnight Blue</option>
+                  <option value="black_white">Black &amp; White</option>
+                  <option value="light_silver">Light Silver</option>
+                </select>
+              </div>
+              <div class="swatch-grid">
+                <div class="field">
+                  <label for="pick-primary">Primary Accent</label>
+                  <div class="color-picker-row"><input type="color" id="pick-primary" onchange="liveColorPick('--color-primary', this.value)"><span class="mono" id="hex-primary">#315E91</span></div>
+                </div>
+                <div class="field">
+                  <label for="pick-navy">Sidebar Navy / Dark</label>
+                  <div class="color-picker-row"><input type="color" id="pick-navy" onchange="liveColorPick('--color-navy-950', this.value)"><span class="mono" id="hex-navy">#081426</span></div>
+                </div>
+                <div class="field">
+                  <label for="pick-page">Page Background</label>
+                  <div class="color-picker-row"><input type="color" id="pick-page" onchange="liveColorPick('--color-page', this.value)"><span class="mono" id="hex-page">#F1F3F5</span></div>
+                </div>
+                <div class="field">
+                  <label for="pick-surface">Card Surface</label>
+                  <div class="color-picker-row"><input type="color" id="pick-surface" onchange="liveColorPick('--color-surface', this.value)"><span class="mono" id="hex-surface">#FFFFFF</span></div>
+                </div>
+                <div class="field">
+                  <label for="pick-text">Main Text</label>
+                  <div class="color-picker-row"><input type="color" id="pick-text" onchange="liveColorPick('--color-text', this.value)"><span class="mono" id="hex-text">#101820</span></div>
+                </div>
+                <div class="field">
+                  <label for="pick-border">Border Color</label>
+                  <div class="color-picker-row"><input type="color" id="pick-border" onchange="liveColorPick('--color-border', this.value)"><span class="mono" id="hex-border">#E2E6EA</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Company &amp; Finance Policy</h2>
+              </div>
+              <div class="form-grid-2">
+                <div class="field">
+                  <label for="setting-company-name">Company Name</label>
+                  <input id="setting-company-name" type="text" class="input">
+                </div>
+                <div class="field">
+                  <label for="setting-email">Contact Email</label>
+                  <input id="setting-email" type="email" class="input">
+                </div>
+                <div class="field">
+                  <label for="setting-currency">Default Currency</label>
+                  <select id="setting-currency" class="select">
+                    <option value="AUD">AUD (A$)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                    <option value="LKR">LKR (Rs)</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="setting-workday">Standard Workday (Hrs)</label>
+                  <input id="setting-workday" type="number" min="1" max="16" step="0.5" class="input">
+                </div>
+                <div class="field">
+                  <label for="setting-ot-mult">Overtime Multiplier</label>
+                  <input id="setting-ot-mult" type="number" min="1" max="3" step="0.25" class="input">
+                </div>
+                <div class="field">
+                  <label for="setting-inv-prefix">Invoice Prefix</label>
+                  <input id="setting-inv-prefix" type="text" class="input">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="split-grid-2">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Configured Editing Software</h2>
+                <button type="button" class="btn btn-sm btn-outline" onclick="openSoftwareModal()">+ Add Software</button>
+              </div>
+              <div id="settings-software-list"></div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">Prototype Data Controls (Browser-Local)</h2>
+              </div>
+              <p style="font-size:0.875rem;color:var(--on-surface-variant);margin-top:0;">All records persist inside the notebook artifact state API. Export a JSON backup or restore the studio sample dataset.</p>
+              <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem;">
+                <button type="button" class="btn btn-outline" onclick="exportWorkspaceJson()"><i data-lucide="download" aria-hidden="true"></i>Export JSON Backup</button>
+                <label class="btn btn-outline" style="cursor:pointer;">
+                  <i data-lucide="upload" aria-hidden="true"></i>Import JSON
+                  <input type="file" accept=".json,application/json" style="display:none;" onchange="importWorkspaceJson(this)">
+                </label>
+                <button type="button" class="btn btn-danger-outline" onclick="restoreDemoData(this)">Restore Sample Data</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Reusable Modal -->
+  <div class="modal-backdrop" id="app-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h2 class="card-title" id="modal-title">Modal</h2>
+        <button type="button" class="btn btn-sm btn-outline" onclick="closeModal()" aria-label="Close modal">Close</button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+  <api-shim></api-shim>
+  <script>
+    // --- Default Sample Data & Theme Presets ---
+    const THEME_PRESETS = {
+      navy_silver: {
+        '--color-navy-950': '#081426',
+        '--color-primary': '#315E91',
+        '--color-page': '#F1F3F5',
+        '--color-surface': '#FFFFFF',
+        '--color-text': '#101820',
+        '--color-border': '#E2E6EA'
+      },
+      midnight_blue: {
+        '--color-navy-950': '#050B16',
+        '--color-primary': '#2563EB',
+        '--color-page': '#E8EEF5',
+        '--color-surface': '#FFFFFF',
+        '--color-text': '#0B1320',
+        '--color-border': '#CBD5E1'
+      },
+      black_white: {
+        '--color-navy-950': '#101418',
+        '--color-primary': '#1F2937',
+        '--color-page': '#F3F4F6',
+        '--color-surface': '#FFFFFF',
+        '--color-text': '#111827',
+        '--color-border': '#D1D5DB'
+      },
+      light_silver: {
+        '--color-navy-950': '#1D3553',
+        '--color-primary': '#397BB7',
+        '--color-page': '#F8FAFC',
+        '--color-surface': '#FFFFFF',
+        '--color-text': '#1E293B',
+        '--color-border': '#E2E8F0'
+      }
+    };
+
+    function createSampleState() {
+      return {
+        currentView: 'dashboard',
+        settings: {
+          companyName: `EDIT FLOW`,
+          email: `ops@editflow.studio`,
+          currency: `AUD`,
+          workdayHours: 8,
+          overtimeMultiplier: 1.5,
+          invoicePrefix: `INV-2026-`,
+          preset: `navy_silver`,
+          theme: Object.assign({}, THEME_PRESETS.navy_silver)
+        },
+        members: [
+          { id: `mem_001`, name: `Nimal Perera`, email: `nimal@editflow.studio`, jobTitle: `Senior Video Editor`, department: `Post Production`, role: `Video Editor`, status: `active`, presence: `online` },
+          { id: `mem_002`, name: `Kasun Silva`, email: `kasun@editflow.studio`, jobTitle: `Motion Graphics Artist`, department: `Motion & VFX`, role: `Motion Designer`, status: `active`, presence: `online` },
+          { id: `mem_003`, name: `Amaya Fernando`, email: `amaya@editflow.studio`, jobTitle: `Colorist & Audio Editor`, department: `Finishing`, role: `Video Editor`, status: `active`, presence: `offline` },
+          { id: `mem_004`, name: `Ravi Jay`, email: `ravi@editflow.studio`, jobTitle: `Lead Producer`, department: `Production`, role: `Admin`, status: `active`, presence: `online` }
+        ],
+        projects: [
+          { id: `prj_001`, ref: `EF-101`, title: `Brand Promo Video`, status: `in_progress`, priority: `high`, memberIds: [`mem_001`, `mem_002`], startDate: `2026-11-15`, dueDate: `2026-11-28`, finalOutputUrl: ``, outputTitle: ``, outputType: `Vimeo`, deliveryStatus: `not_delivered`, updatedAt: `2026-11-22` },
+          { id: `prj_002`, ref: `EF-102`, title: `Travel Vlog EP01`, status: `in_progress`, priority: `medium`, memberIds: [`mem_001`, `mem_003`], startDate: `2026-11-10`, dueDate: `2026-11-25`, finalOutputUrl: ``, outputTitle: ``, outputType: `YouTube`, deliveryStatus: `not_delivered`, updatedAt: `2026-11-21` },
+          { id: `prj_003`, ref: `EF-103`, title: `Podcast Episode 08`, status: `under_review`, priority: `medium`, memberIds: [`mem_003`], startDate: `2026-11-12`, dueDate: `2026-11-23`, finalOutputUrl: `https://example.com/deliverables/podcast-ep08-review`, outputTitle: `Podcast EP08 Review Master`, outputType: `Drive`, deliveryStatus: `in_review`, updatedAt: `2026-11-22` },
+          { id: `prj_004`, ref: `EF-104`, title: `Product Advertisement`, status: `completed`, priority: `high`, memberIds: [`mem_002`, `mem_004`], startDate: `2026-11-01`, dueDate: `2026-11-18`, finalOutputUrl: `https://example.com/deliverables/product-ad-4k`, outputTitle: `Product Ad 4K Master`, outputType: `Vimeo`, deliveryStatus: `delivered`, updatedAt: `2026-11-18` }
+        ],
+        tasks: [
+          { id: `task_001`, title: `Rough Cut`, description: `Assemble A-roll narrative sequence and select B-roll.`, projectId: `prj_001`, assignedMemberId: `mem_001`, status: `in_progress`, priority: `high`, startDate: `2026-11-18`, dueDate: `2026-11-24`, estimatedHours: 8, createdAt: `2026-11-18` },
+          { id: `task_002`, title: `Lower Thirds & Logo Sting`, description: `Animated kinetic typography pack.`, projectId: `prj_001`, assignedMemberId: `mem_002`, status: `completed`, priority: `medium`, startDate: `2026-11-19`, dueDate: `2026-11-22`, estimatedHours: 4, createdAt: `2026-11-19` },
+          { id: `task_003`, title: `Color Grading`, description: `Match Sony S-Log3 LUT across daylight scenes.`, projectId: `prj_002`, assignedMemberId: `mem_003`, status: `todo`, priority: `medium`, startDate: `2026-11-21`, dueDate: `2026-11-25`, estimatedHours: 5, createdAt: `2026-11-21` },
+          { id: `task_004`, title: `Audio Cleanup`, description: `De-reverb dialogue and normalize to -14 LUFS.`, projectId: `prj_003`, assignedMemberId: `mem_003`, status: `in_review`, priority: `high`, startDate: `2026-11-16`, dueDate: `2026-11-23`, estimatedHours: 6, createdAt: `2026-11-16` },
+          { id: `task_005`, title: `Motion Graphics`, description: `3D product callouts and end-card animation.`, projectId: `prj_004`, assignedMemberId: `mem_002`, status: `completed`, priority: `high`, startDate: `2026-11-05`, dueDate: `2026-11-14`, estimatedHours: 10, createdAt: `2026-11-05` },
+          { id: `task_006`, title: `Final Export & QC`, description: `Verify broadcast safe levels and ProRes 422 HQ export.`, projectId: `prj_004`, assignedMemberId: `mem_004`, status: `completed`, priority: `urgent`, startDate: `2026-11-15`, dueDate: `2026-11-18`, estimatedHours: 3, createdAt: `2026-11-15` }
+        ],
+        software: [
+          { id: `soft_001`, name: `Adobe Premiere Pro`, enabled: true },
+          { id: `soft_002`, name: `Adobe After Effects`, enabled: true },
+          { id: `soft_003`, name: `DaVinci Resolve`, enabled: true },
+          { id: `soft_004`, name: `Adobe Photoshop`, enabled: true }
+        ],
+        timeLogs: [
+          { id: `time_001`, memberId: `mem_001`, softwareId: `soft_001`, projectId: `prj_001`, taskId: `task_001`, workFileName: `Brand_Promo_Rough_Cut.prproj`, startTime: `2026-11-22T09:00:00`, endTime: `2026-11-22T11:30:00`, durationSeconds: 9000, entryType: `timer` },
+          { id: `time_002`, memberId: `mem_002`, softwareId: `soft_002`, projectId: `prj_001`, taskId: `task_002`, workFileName: `Brand_Sting_v3.aep`, startTime: `2026-11-21T10:15:00`, endTime: `2026-11-21T13:15:00`, durationSeconds: 10800, entryType: `timer` },
+          { id: `time_003`, memberId: `mem_003`, softwareId: `soft_003`, projectId: `prj_003`, taskId: `task_004`, workFileName: `Podcast_EP08_Grade.drp`, startTime: `2026-11-20T13:00:00`, endTime: `2026-11-20T16:30:00`, durationSeconds: 12600, entryType: `timer` },
+          { id: `time_004`, memberId: `mem_001`, softwareId: `soft_001`, projectId: `prj_002`, taskId: ``, workFileName: `Travel_Vlog_EP01_Selects.prproj`, startTime: `2026-11-19T14:00:00`, endTime: `2026-11-19T18:30:00`, durationSeconds: 16200, entryType: `timer` },
+          { id: `time_005`, memberId: `mem_002`, softwareId: `soft_004`, projectId: `prj_004`, taskId: `task_005`, workFileName: `Product_Thumbnails.psd`, startTime: `2026-11-17T09:30:00`, endTime: `2026-11-17T11:30:00`, durationSeconds: 7200, entryType: `manual` }
+        ],
+        activeTimer: null,
+        financeRecords: [
+          { id: `fin_001`, memberId: `mem_001`, projectId: `prj_001`, rateType: `hourly`, rate: 20, regularHours: 10, overtimeHours: 2, overtimeRate: 30, advancePaid: 100, amountPaid: 100, paymentStatus: `partially_paid`, invoiceStatus: `submitted` },
+          { id: `fin_002`, memberId: `mem_002`, projectId: `prj_004`, rateType: `fixed`, rate: 240, regularHours: 10, overtimeHours: 0, overtimeRate: 0, advancePaid: 0, amountPaid: 240, paymentStatus: `paid`, invoiceStatus: `approved` },
+          { id: `fin_003`, memberId: `mem_003`, projectId: `prj_003`, rateType: `hourly`, rate: 18, regularHours: 8, overtimeHours: 0, overtimeRate: 27, advancePaid: 0, amountPaid: 0, paymentStatus: `pending`, invoiceStatus: `submitted` },
+          { id: `fin_004`, memberId: `mem_001`, projectId: `prj_002`, rateType: `hourly`, rate: 20, regularHours: 6, overtimeHours: 1, overtimeRate: 30, advancePaid: 60, amountPaid: 60, paymentStatus: `advance_paid`, invoiceStatus: `none` }
+        ],
+        invoices: [
+          { id: `inv_001`, memberId: `mem_001`, projectId: `prj_001`, invoiceNumber: `INV-2026-041`, date: `2026-11-21`, amount: 260, description: `Brand Promo rough cut & revisions`, fileName: `Nimal_INV_041.pdf`, status: `submitted`, note: `Includes 2h approved weekend cut` },
+          { id: `inv_002`, memberId: `mem_003`, projectId: `prj_003`, invoiceNumber: `INV-2026-042`, date: `2026-11-22`, amount: 144, description: `Podcast EP08 audio mastering`, fileName: `Amaya_INV_042.pdf`, status: `submitted`, note: `Awaiting admin approval` }
+        ],
+        payments: [
+          { id: `pay_001`, memberId: `mem_001`, projectId: `prj_001`, amount: 100, type: `Advance`, date: `2026-11-18`, method: `Bank Transfer`, reference: `TXN-88412`, notes: `Initial project advance` },
+          { id: `pay_002`, memberId: `mem_002`, projectId: `prj_004`, amount: 240, type: `Final`, date: `2026-11-18`, method: `Bank Transfer`, reference: `TXN-88309`, notes: `Full project settlement` }
+        ],
+        activities: [
+          { id: `act_001`, text: `Nimal Perera logged 2h 30m in Adobe Premiere Pro on Brand Promo Video`, time: `Today, 11:30` },
+          { id: `act_002`, text: `Amaya Fernando submitted invoice INV-2026-042 for Podcast Episode 08`, time: `Today, 10:05` },
+          { id: `act_003`, text: `Kasun Silva completed task Lower Thirds & Logo Sting`, time: `Yesterday` },
+          { id: `act_004`, text: `Final output link delivered for Product Advertisement`, time: `Nov 18` }
+        ]
+      };
+    }
+
+    let appState = createSampleState();
+    let timerInterval = null;
+    let currentAttachmentPreview = null;
+
+    // --- Persistence via notebookAppApi ---
+    async function saveState() {
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === 'function') {
+          await window.notebookAppApi.setAppState(appState);
+        }
+      } catch (e) {
+        console.error('State save error:', e);
+      }
+    }
+
+    async function initApp() {
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === 'function') {
+          const loaded = await window.notebookAppApi.getAppState();
+          if (loaded && typeof loaded === 'object' && Array.isArray(loaded.members)) {
+            appState = loaded;
+          }
+        }
+      } catch (e) {
+        console.error('State load error:', e);
+      }
+
+      applyThemeVars(appState.settings.theme);
+      syncSettingsInputs();
+      populateAllDropdowns();
+      restoreTimerLoop();
+      navigateTo(appState.currentView || 'dashboard', true);
+      if (window.lucide) window.lucide.createIcons();
+      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === 'function') {
+        window.notebookAppApi.notifyAppReady();
+      }
+    }
+
+    // --- Helpers ---
+    function uid(prefix) {
+      return prefix + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
+    }
+
+    function esc(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function getMemberName(id) {
+      const m = appState.members.find(x => x.id === id);
+      return m ? m.name : 'Unassigned';
+    }
+
+    function getProjectTitle(id) {
+      const p = appState.projects.find(x => x.id === id);
+      return p ? p.title : 'Unknown Project';
+    }
+
+    function getSoftwareName(id) {
+      const s = appState.software.find(x => x.id === id);
+      return s ? s.name : 'Other';
+    }
+
+    function formatDuration(sec) {
+      const s = Math.max(0, Math.floor(sec || 0));
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      return h + 'h ' + String(m).padStart(2, '0') + 'm';
+    }
+
+    function formatHMS(sec) {
+      const s = Math.max(0, Math.floor(sec || 0));
+      const h = String(Math.floor(s / 3600)).padStart(2, '0');
+      const m = String(Math.floor((s % 3600) / 60)).padStart(2, '0');
+      const r = String(s % 60).padStart(2, '0');
+      return `${h}:${m}:${r}`;
+    }
+
+    function currencyPrefix() {
+      const map = { AUD: 'A$', USD: '$', EUR: '€', LKR: 'Rs ' };
+      return map[appState.settings.currency] || '$';
+    }
+
+    function fmtMoney(val) {
+      return currencyPrefix() + Number(val || 0).toFixed(2).replace(/\.00$/, '');
+    }
+
+    function calcFinanceTotals(rec) {
+      const base = rec.rateType === 'fixed' ? Number(rec.rate || 0) : Number(rec.rate || 0) * Number(rec.regularHours || 0);
+      const ot = Number(rec.overtimeHours || 0) * Number(rec.overtimeRate || 0);
+      const totalDue = base + ot;
+      const paid = Number(rec.amountPaid || 0);
+      const balance = Math.max(0, totalDue - paid);
+      let status = rec.paymentStatus || 'pending';
+      if (paid >= totalDue && totalDue > 0) status = 'paid';
+      else if (paid > 0 && paid < totalDue) status = (rec.advancePaid >= paid && rec.paymentStatus === 'advance_paid') ? 'advance_paid' : 'partially_paid';
+      else if (paid === 0 && status !== 'overdue') status = 'pending';
+      return { totalDue, paid, balance, status };
+    }
+
+    function statusBadge(status) {
+      const labels = {
+        todo: ['To Do', 'badge-neutral'],
+        in_progress: ['In Progress', 'badge-info'],
+        in_review: ['In Review', 'badge-warning'],
+        under_review: ['Under Review', 'badge-warning'],
+        on_hold: ['On Hold', 'badge-neutral'],
+        completed: ['Completed', 'badge-success'],
+        pending: ['Pending', 'badge-warning'],
+        not_started: ['Not Started', 'badge-neutral'],
+        overdue: ['Overdue', 'badge-danger'],
+        paid: ['Paid', 'badge-success'],
+        partially_paid: ['Partially Paid', 'badge-info'],
+        advance_paid: ['Advance Paid', 'badge-warning'],
+        submitted: ['Submitted', 'badge-info'],
+        approved: ['Approved', 'badge-success'],
+        rejected: ['Rejected', 'badge-danger'],
+        none: ['Not Submitted', 'badge-neutral']
+      };
+      const pair = labels[status] || [String(status), 'badge-neutral'];
+      return `<span class="badge ${pair[1]}">${esc(pair[0])}</span>`;
+    }
+
+    function priorityBadge(p) {
+      const map = { low: 'badge-neutral', medium: 'badge-info', high: 'badge-warning', urgent: 'badge-danger' };
+      return `<span class="badge ${map[p] || 'badge-neutral'}">${esc(p ? p.charAt(0).toUpperCase() + p.slice(1) : 'Medium')}</span>`;
+    }
+
+    function addActivity(text) {
+      appState.activities.unshift({ id: uid('act'), text: text, time: 'Just now' });
+      if (appState.activities.length > 15) appState.activities.length = 15;
+    }
+
+    function showToast(msg, type) {
+      const stack = document.getElementById('toast-stack');
+      if (!stack) return;
+      const el = document.createElement('div');
+      el.className = 'toast' + (type === 'error' ? ' is-error' : type === 'warn' ? ' is-warn' : '');
+      el.textContent = msg;
+      stack.appendChild(el);
+      setTimeout(() => { el.remove(); }, 3200);
+    }
+
+    // --- Navigation ---
+    function navigateTo(view, skipSave) {
+      const views = document.querySelectorAll('.view-section');
+      views.forEach(v => v.classList.toggle('is-active', v.id === 'view-' + view));
+
+      const btns = document.querySelectorAll('.nav-btn');
+      btns.forEach(b => b.classList.toggle('is-active', b.dataset.view === view));
+
+      appState.currentView = view;
+      toggleMobileSidebar(false);
+      renderCurrentView();
+      if (!skipSave) saveState();
+    }
+
+    function toggleMobileSidebar(open) {
+      const sb = document.getElementById('app-sidebar');
+      const ov = document.getElementById('drawer-overlay');
+      if (sb) sb.classList.toggle('is-open', !!open);
+      if (ov) ov.classList.toggle('is-open', !!open);
+    }
+
+    function renderCurrentView() {
+      const v = appState.currentView;
+      if (v === 'dashboard') renderDashboard();
+      else if (v === 'projects') renderProjectsView();
+      else if (v === 'time-tracker') renderTimeTrackerView();
+      else if (v === 'members') renderMembersView();
+      else if (v === 'project-overview') renderProjectOverviewView();
+      else if (v === 'finance-tracker') renderFinanceView();
+      else if (v === 'settings') renderSettingsView();
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function handleGlobalSearch(q) {
+      const val = q.trim().toLowerCase();
+      if (!val) {
+        renderCurrentView();
+        return;
+      }
+      if (appState.currentView === 'projects') {
+        const el = document.getElementById('filter-task-search');
+        if (el) el.value = q;
+        renderProjectsView();
+      } else if (appState.currentView === 'members') {
+        const el = document.getElementById('filter-member-search');
+        if (el) el.value = q;
+        renderMembersView();
+      } else if (appState.currentView === 'project-overview') {
+        const el = document.getElementById('filter-overview-search');
+        if (el) el.value = q;
+        renderProjectOverviewView();
+      }
+    }
+
+    // --- Dropdown Sync ---
+    function populateAllDropdowns() {
+      const memOpts = `<option value="all">All Members</option>` + appState.members.map(m => `<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('');
+      const memReqOpts = appState.members.filter(m => m.status === 'active').map(m => `<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('');
+      const prjOpts = `<option value="all">All Projects</option>` + appState.projects.map(p => `<option value="${esc(p.id)}">${esc(p.title)}</option>`).join('');
+      const prjReqOpts = appState.projects.map(p => `<option value="${esc(p.id)}">${esc(p.title)}</option>`).join('');
+      const softOpts = `<option value="all">All Software</option>` + appState.software.map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');
+      const softEnabledOpts = appState.software.filter(s => s.enabled).map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');
+
+      ['filter-task-member', 'filter-time-member', 'filter-fin-member'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = memOpts;
+      });
+      ['filter-task-project', 'filter-time-project', 'filter-fin-project'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = prjOpts;
+      });
+      const fSoft = document.getElementById('filter-time-software');
+      if (fSoft) fSoft.innerHTML = softOpts;
+
+      const tMem = document.getElementById('timer-member');
+      const tSoft = document.getElementById('timer-software');
+      const tPrj = document.getElementById('timer-project');
+      if (tMem) tMem.innerHTML = memReqOpts;
+      if (tSoft) tSoft.innerHTML = softEnabledOpts;
+      if (tPrj) tPrj.innerHTML = prjReqOpts;
+      populateTimerTasks();
+    }
+
+    function populateTimerTasks() {
+      const prjEl = document.getElementById('timer-project');
+      const taskEl = document.getElementById('timer-task');
+      if (!prjEl || !taskEl) return;
+      const tasks = appState.tasks.filter(t => t.projectId === prjEl.value);
+      taskEl.innerHTML = `<option value="">— General / No Task —</option>` + tasks.map(t => `<option value="${esc(t.id)}">${esc(t.title)}</option>`).join('');
+    }
+
+    // --- 1. DASHBOARD ---
+    function renderDashboard() {
+      const totalProjects = appState.projects.length;
+      const activeProjects = appState.projects.filter(p => p.status === 'in_progress' || p.status === 'under_review').length;
+      const pendingTasks = appState.tasks.filter(t => t.status !== 'completed').length;
+      const totalSeconds = appState.timeLogs.reduce((a, b) => a + (b.durationSeconds || 0), 0) + getActiveElapsedSeconds();
+      const onlineMembers = appState.members.filter(m => m.presence === 'online').length;
+      const pendingPay = appState.financeRecords.reduce((a, r) => a + calcFinanceTotals(r).balance, 0);
+
+      const kpis = [
+        { label: `Total Projects`, val: totalProjects, sub: `${activeProjects} active in pipeline`, nav: `project-overview`, link: `Overview` },
+        { label: `Pending Tasks`, val: pendingTasks, sub: `${appState.tasks.length} total tasks`, nav: `projects`, link: `Task Grid` },
+        { label: `Editing Hours`, val: (totalSeconds / 3600).toFixed(1) + 'h', sub: `${appState.timeLogs.length} logged sessions`, nav: `time-tracker`, link: `Time Logs` },
+        { label: `Members Online`, val: `${onlineMembers}/${appState.members.length}`, sub: `Simulated studio presence`, nav: `members`, link: `Team` },
+        { label: `Balance Due`, val: fmtMoney(pendingPay), sub: `${appState.invoices.filter(i => i.status === 'submitted').length} invoices pending`, nav: `finance-tracker`, link: `Finance` }
+      ];
+
+      const kpiEl = document.getElementById('dashboard-kpis');
+      if (kpiEl) {
+        kpiEl.innerHTML = kpis.map(k => `
+          <div class="kpi-card">
+            <div class="kpi-top"><span>${esc(k.label)}</span></div>
+            <div class="kpi-val">${esc(k.val)}</div>
+            <div class="kpi-sub"><span>${esc(k.sub)}</span><button type="button" class="link-btn" onclick="navigateTo('${k.nav}')">${esc(k.link)}</button></div>
+          </div>
+        `).join('');
+      }
+
+      const sumEl = document.getElementById('dash-hours-summary');
+      if (sumEl) sumEl.textContent = formatDuration(totalSeconds) + ' total tracked';
+
+      // Horizontal bar chart by software
+      const softTotals = {};
+      appState.software.forEach(s => { softTotals[s.id] = 0; });
+      appState.timeLogs.forEach(l => { softTotals[l.softwareId] = (softTotals[l.softwareId] || 0) + (l.durationSeconds || 0) / 3600; });
+      const softList = Object.entries(softTotals).map(([id, hrs]) => ({ name: getSoftwareName(id), hrs })).sort((a, b) => b.hrs - a.hrs);
+      const maxHrs = Math.max(1, ...softList.map(x => x.hrs));
+      const palette = ['var(--data-1)', 'var(--data-2)', 'var(--data-3)', 'var(--data-4)', 'var(--data-5)'];
+      const softChart = document.getElementById('dash-software-chart');
+      if (softChart) {
+        softChart.innerHTML = softList.map((s, idx) => `
+          <div class="bar-row">
+            <span style="font-size:0.8125rem;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(s.name)}</span>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.round((s.hrs / maxHrs) * 100)}%;background:${palette[idx % palette.length]};"></div></div>
+            <span class="mono text-right" style="font-size:0.8125rem;">${s.hrs.toFixed(1)}h</span>
+          </div>
+        `).join('');
+      }
+
+      // Donut SVG chart by project
+      const prjTotals = {};
+      appState.timeLogs.forEach(l => { prjTotals[l.projectId] = (prjTotals[l.projectId] || 0) + (l.durationSeconds || 0) / 3600; });
+      const prjArr = Object.entries(prjTotals).map(([id, hrs], i) => ({ title: getProjectTitle(id), hrs, color: palette[i % palette.length] }));
+      const sumPrjHrs = Math.max(0.01, prjArr.reduce((a, b) => a + b.hrs, 0));
+      let offset = 0;
+      const r = 46;
+      const c = 2 * Math.PI * r;
+      const circles = prjArr.map(item => {
+        const dash = (item.hrs / sumPrjHrs) * c;
+        const svgEl = `<circle cx="64" cy="64" r="${r}" fill="none" stroke="${item.color}" stroke-width="18" stroke-dasharray="${dash.toFixed(2)} ${(c - dash).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}"></circle>`;
+        offset += dash;
+        return svgEl;
+      }).join('');
+      const donutEl = document.getElementById('dash-project-donut');
+      if (donutEl) {
+        donutEl.innerHTML = `
+          <div style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">
+            <svg width="128" height="128" viewBox="0 0 128 128" aria-label="Time distribution by project">
+              <circle cx="64" cy="64" r="${r}" fill="none" stroke="var(--outline-variant)" stroke-width="18"></circle>
+              <g transform="rotate(-90 64 64)">${circles}</g>
+              <text x="64" y="68" text-anchor="middle" font-size="14" font-weight="600" fill="var(--on-surface)" font-family="var(--font-label)">${sumPrjHrs.toFixed(1)}h</text>
+            </svg>
+            <div style="display:flex;flex-direction:column;gap:0.45rem;flex:1;min-width:160px;">
+              ${prjArr.map(x => `<div style="display:flex;align-items:center;justify-content:space-between;font-size:0.8125rem;"><span style="display:inline-flex;align-items:center;gap:0.4rem;"><span class="dot" style="background:${x.color};"></span>${esc(x.title)}</span><strong class="mono">${x.hrs.toFixed(1)}h</strong></div>`).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // Finance summary
+      let totalDue = 0, totalPaid = 0, totalOt = 0;
+      appState.financeRecords.forEach(r => {
+        const t = calcFinanceTotals(r);
+        totalDue += t.totalDue;
+        totalPaid += t.paid;
+        totalOt += Number(r.overtimeHours || 0) * Number(r.overtimeRate || 0);
+      });
+      const finEl = document.getElementById('dash-finance-summary');
+      if (finEl) {
+        const paidPct = totalDue > 0 ? Math.round((totalPaid / totalDue) * 100) : 0;
+        finEl.innerHTML = `
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;margin-bottom:1rem;">
+            <div><div class="kpi-top">Total Payable</div><div class="mono" style="font-size:1.25rem;font-weight:600;">${fmtMoney(totalDue)}</div></div>
+            <div><div class="kpi-top">Paid</div><div class="mono" style="font-size:1.25rem;font-weight:600;color:var(--color-success);">${fmtMoney(totalPaid)}</div></div>
+            <div><div class="kpi-top">Overtime Due</div><div class="mono" style="font-size:1.25rem;font-weight:600;color:var(--color-warning);">${fmtMoney(totalOt)}</div></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.8125rem;margin-bottom:0.35rem;"><span>Settlement Progress</span><span class="mono">${paidPct}%</span></div>
+          <div class="progress-track"><div class="progress-fill" style="width:${paidPct}%;background:var(--color-success);"></div></div>
+        `;
+      }
+
+      // Members presence
+      const presEl = document.getElementById('dash-members-presence');
+      if (presEl) {
+        presEl.innerHTML = appState.members.map(m => {
+          const running = appState.activeTimer && appState.activeTimer.memberId === m.id;
+          return `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--outline-variant);">
+              <div>
+                <div style="font-weight:600;font-size:0.875rem;">${esc(m.name)}</div>
+                <div style="font-size:0.75rem;color:var(--on-surface-variant);">${esc(m.jobTitle)}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:0.5rem;">
+                ${running ? `<span class="badge badge-info">Tracking Now</span>` : ''}
+                <span class="badge ${m.presence === 'online' ? 'badge-success' : 'badge-danger'}"><span class="dot ${m.presence === 'online' ? 'dot-online' : 'dot-offline'}"></span>${m.presence === 'online' ? 'Online' : 'Offline'}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Projects table
+      const prjBody = document.getElementById('dash-projects-tbody');
+      if (prjBody) {
+        prjBody.innerHTML = appState.projects.map(p => {
+          const pct = getProjectProgress(p.id);
+          return `
+            <tr>
+              <td><strong>${esc(p.title)}</strong><div class="mono" style="font-size:0.72rem;color:var(--on-surface-variant);">${esc(p.ref)}</div></td>
+              <td>${statusBadge(p.status)}</td>
+              <td style="min-width:120px;"><div style="display:flex;align-items:center;gap:0.5rem;"><div class="progress-track"><div class="progress-fill" style="width:${pct}%;"></div></div><span class="mono" style="font-size:0.75rem;">${pct}%</span></div></td>
+              <td class="mono">${esc(p.dueDate)}</td>
+              <td>${p.finalOutputUrl ? `<span class="badge badge-success">Linked</span>` : `<span class="badge badge-neutral">Pending</span>`}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Activity feed
+      const actEl = document.getElementById('dash-activity-list');
+      if (actEl) {
+        actEl.innerHTML = appState.activities.slice(0, 5).map(a => `
+          <div style="padding:0.55rem 0;border-bottom:1px solid var(--outline-variant);font-size:0.8125rem;">
+            <div>${esc(a.text)}</div>
+            <div class="mono" style="font-size:0.72rem;color:var(--on-surface-variant);margin-top:0.15rem;">${esc(a.time)}</div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // --- 2. PROJECTS & TASK GRID ---
+    function renderProjectsView() {
+      const q = (document.getElementById('filter-task-search')?.value || '').trim().toLowerCase();
+      const prj = document.getElementById('filter-task-project')?.value || 'all';
+      const mem = document.getElementById('filter-task-member')?.value || 'all';
+      const st = document.getElementById('filter-task-status')?.value || 'all';
+      const prio = document.getElementById('filter-task-priority')?.value || 'all';
+      const sortBy = document.getElementById('sort-tasks')?.value || 'dueDate';
+
+      const prioRank = { urgent: 4, high: 3, medium: 2, low: 1 };
+      let list = appState.tasks.filter(t => {
+        if (prj !== 'all' && t.projectId !== prj) return false;
+        if (mem !== 'all' && t.assignedMemberId !== mem) return false;
+        if (st !== 'all' && t.status !== st) return false;
+        if (prio !== 'all' && t.priority !== prio) return false;
+        if (q) {
+          const hay = (t.title + ' ' + t.description + ' ' + getProjectTitle(t.projectId) + ' ' + getMemberName(t.assignedMemberId)).toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      list.sort((a, b) => {
+        if (sortBy === 'priority') return (prioRank[b.priority] || 0) - (prioRank[a.priority] || 0);
+        if (sortBy === 'createdAt') return (b.createdAt || '').localeCompare(a.createdAt || '');
+        return (a.dueDate || '9999').localeCompare(b.dueDate || '9999');
+      });
+
+      const tbody = document.getElementById('tasks-tbody');
+      if (!tbody) return;
+      if (!list.length) {
+        tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">No tasks match these filters. Click <strong>+ Add Task</strong> to create one.</div></td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(t => `
+        <tr>
+          <td><strong>${esc(t.title)}</strong><div style="font-size:0.75rem;color:var(--on-surface-variant);">${esc(t.description || '')}</div></td>
+          <td>${esc(getProjectTitle(t.projectId))}</td>
+          <td>${esc(getMemberName(t.assignedMemberId))}</td>
+          <td>
+            <select class="select" style="min-height:32px;padding:0.2rem 0.5rem;font-size:0.8125rem;width:auto;" aria-label="Change task status" onchange="quickTaskStatus('${esc(t.id)}', this.value)">
+              <option value="todo" ${t.status === 'todo' ? 'selected' : ''}>To Do</option>
+              <option value="in_progress" ${t.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+              <option value="in_review" ${t.status === 'in_review' ? 'selected' : ''}>In Review</option>
+              <option value="on_hold" ${t.status === 'on_hold' ? 'selected' : ''}>On Hold</option>
+              <option value="completed" ${t.status === 'completed' ? 'selected' : ''}>Completed</option>
+            </select>
+          </td>
+          <td>${priorityBadge(t.priority)}</td>
+          <td class="mono">${esc(t.dueDate || '—')}</td>
+          <td class="mono">${esc(t.estimatedHours || 0)}h</td>
+          <td class="text-right" style="white-space:nowrap;">
+            <button type="button" class="btn btn-sm btn-outline" onclick="openTaskModal('${esc(t.id)}')">Edit</button>
+            <button type="button" class="btn btn-sm btn-danger-outline" onclick="deleteTask('${esc(t.id)}', this)">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function quickTaskStatus(id, status) {
+      const t = appState.tasks.find(x => x.id === id);
+      if (!t) return;
+      t.status = status;
+      addActivity(`Task "${t.title}" marked ${status.replace('_', ' ')}`);
+      saveState();
+      showToast(`Updated task status`);
+    }
+
+    function openTaskModal(editId) {
+      const t = editId ? appState.tasks.find(x => x.id === editId) : null;
+      const prjOpts = appState.projects.map(p => `<option value="${esc(p.id)}" ${t && t.projectId === p.id ? 'selected' : ''}>${esc(p.title)}</option>`).join('');
+      const memOpts = appState.members.map(m => `<option value="${esc(m.id)}" ${t && t.assignedMemberId === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('');
+
+      openModal(t ? 'Edit Task' : 'Add New Task', `
+        <form onsubmit="saveTaskForm(event, '${esc(editId || '')}')">
+          <div class="field" style="margin-bottom:0.75rem;">
+            <label for="m-field-task-title">Task Title *</label>
+            <input id="m-field-task-title" name="taskTitle" type="text" class="input" required value="${esc(t ? t.title : '')}">
+          </div>
+          <div class="field" style="margin-bottom:0.75rem;">
+            <label for="m-field-task-desc">Description</label>
+            <textarea id="m-field-task-desc" name="taskDesc" class="textarea">${esc(t ? t.description : '')}</textarea>
+          </div>
+          <div class="form-grid-2" style="margin-bottom:0.75rem;">
+            <div class="field"><label for="m-field-task-project">Project *</label><select id="m-field-task-project" name="taskProject" class="select">${prjOpts}</select></div>
+            <div class="field"><label for="m-field-task-member">Assigned Member *</label><select id="m-field-task-member" name="taskMember" class="select">${memOpts}</select></div>
+            <div class="field">
+              <label for="m-field-task-status">Status</label>
+              <select id="m-field-task-status" name="taskStatus" class="select">
+                <option value="todo" ${t && t.status === 'todo' ? 'selected' : ''}>To Do</option>
+                <option value="in_progress" ${!t || t.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                <option value="in_review" ${t && t.status === 'in_review' ? 'selected' : ''}>In Review</option>
+                <option value="on_hold" ${t && t.status === 'on_hold' ? 'selected' : ''}>On Hold</option>
+                <option value="completed" ${t && t.status === 'completed' ? 'selected' : ''}>Completed</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="m-field-task-prio">Priority</label>
+              <select id="m-field-task-prio" name="taskPrio" class="select">
+                <option value="low" ${t && t.priority === 'low' ? 'selected' : ''}>Low</option>
+                <option value="medium" ${!t || t.priority === 'medium' ? 'selected' : ''}>Medium</option>
+                <option value="high" ${t && t.priority === 'high' ? 'selected' : ''}>High</option>
+                <option value="urgent" ${t && t.priority === 'urgent' ? 'selected' : ''}>Urgent</option>
+              </select>
+            </div>
+            <div class="field"><label for="m-field-task-start">Start Date</label><input id="m-field-task-start" name="taskStart" type="date" class="input" value="${esc(t ? t.startDate : '2026-11-22')}"></div>
+            <div class="field"><label for="m-field-task-due">Due Date</label><input id="m-field-task-due" name="taskDue" type="date" class="input" value="${esc(t ? t.dueDate : '2026-11-28')}"></div>
+          </div>
+          <div class="field" style="margin-bottom:1rem;">
+            <label for="m-field-task-hrs">Estimated Hours</label>
+            <input id="m-field-task-hrs" name="taskHrs" type="number" min="0" step="0.5" class="input" value="${esc(t ? t.estimatedHours : 4)}">
+          </div>
+          <div class="form-error js-task-err"></div>
+          <div style="display:flex;justify-content:flex-end;gap:0.5rem;margin-top:1rem;">
+            <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">${t ? 'Save Changes' : 'Add Task'}</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function saveTaskForm(ev, editId) {
+      ev.preventDefault();
+      const form = ev.target;
+      const titleEl = form.elements.taskTitle;
+      const startEl = form.elements.taskStart;
+      const dueEl = form.elements.taskDue;
+      const hrsEl = form.elements.taskHrs;
+      const descEl = form.elements.taskDesc;
+      const prjEl = form.elements.taskProject;
+      const memEl = form.elements.taskMember;
+      const statusEl = form.elements.taskStatus;
+      const prioEl = form.elements.taskPrio;
+      const errEl = form.querySelector('.js-task-err');
+      if (!titleEl || !startEl || !dueEl || !hrsEl || !descEl || !prjEl || !memEl || !statusEl || !prioEl) return;
+
+      const title = titleEl.value.trim();
+      const start = startEl.value;
+      const due = dueEl.value;
+      const hrs = Number(hrsEl.value);
+      if (!title) { if (errEl) errEl.textContent = 'Task title is required.'; return; }
+      if (start && due && due < start) { if (errEl) errEl.textContent = 'Due date cannot be earlier than start date.'; return; }
+      if (hrs < 0) { if (errEl) errEl.textContent = 'Estimated hours must be 0 or greater.'; return; }
+
+      const payload = {
+        id: editId || uid('task'),
+        title,
+        description: descEl.value.trim(),
+        projectId: prjEl.value,
+        assignedMemberId: memEl.value,
+        status: statusEl.value,
+        priority: prioEl.value,
+        startDate: start,
+        dueDate: due,
+        estimatedHours: hrs,
+        createdAt: editId ? (appState.tasks.find(x => x.id === editId)?.createdAt || '2026-11-22') : '2026-11-22'
+      };
+
+      if (editId) {
+        const idx = appState.tasks.findIndex(x => x.id === editId);
+        if (idx >= 0) appState.tasks[idx] = payload;
+        addActivity(`Updated task "${title}"`);
+      } else {
+        appState.tasks.unshift(payload);
+        addActivity(`New task "${title}" assigned to ${getMemberName(payload.assignedMemberId)}`);
+      }
+      saveState();
+      closeModal();
+      renderCurrentView();
+      showToast(editId ? 'Task updated' : 'Task created');
+    }
+
+    function deleteTask(id, btn) {
+      if (btn.dataset.armed !== 'true') {
+        btn.dataset.armed = 'true';
+        btn.textContent = 'Confirm?';
+        setTimeout(() => { if (btn) { btn.dataset.armed = 'false'; btn.textContent = 'Delete'; } }, 3000);
+        return;
+      }
+      appState.tasks = appState.tasks.filter(t => t.id !== id);
+      saveState();
+      renderProjectsView();
+      showToast('Task deleted');
+    }
+
+    // --- 3. TIME TRACKER ---
+    function getActiveElapsedSeconds() {
+      const t = appState.activeTimer;
+      if (!t) return 0;
+      const base = Math.floor((t.accumulatedMs || 0) / 1000);
+      if (t.isPaused || !t.startedAtMs) return base;
+      return base + Math.max(0, Math.floor((Date.now() - t.startedAtMs) / 1000));
+    }
+
+    function updateTimerUI() {
+      const t = appState.activeTimer;
+      const sec = getActiveElapsedSeconds();
+      const disp = document.getElementById('stopwatch-display');
+      const pill = document.getElementById('topbar-timer-pill');
+      const pillTxt = document.getElementById('topbar-timer-text');
+      const badge = document.getElementById('timer-status-badge');
+      const btnStart = document.getElementById('btn-timer-start');
+      const btnPause = document.getElementById('btn-timer-pause');
+      const btnStop = document.getElementById('btn-timer-stop');
+
+      if (disp) disp.textContent = formatHMS(sec);
+      if (t) {
+        if (pill) pill.classList.remove('is-idle');
+        if (pillTxt) pillTxt.textContent = `${getSoftwareName(t.softwareId)} · ${formatHMS(sec)}`;
+        if (badge) {
+          badge.textContent = t.isPaused ? 'PAUSED' : 'RUNNING SESSION';
+          badge.className = 'badge ' + (t.isPaused ? 'badge-warning' : 'badge-success');
+        }
+        document.getElementById('meta-member').textContent = getMemberName(t.memberId);
+        document.getElementById('meta-software').textContent = getSoftwareName(t.softwareId);
+        document.getElementById('meta-project').textContent = getProjectTitle(t.projectId);
+        document.getElementById('meta-file').textContent = t.workFileName;
+        if (btnStart) btnStart.style.display = 'none';
+        if (btnPause) {
+          btnPause.style.display = 'inline-flex';
+          btnPause.textContent = t.isPaused ? 'Resume' : 'Pause';
+        }
+        if (btnStop) btnStop.style.display = 'inline-flex';
+      } else {
+        if (pill) pill.classList.add('is-idle');
+        if (pillTxt) pillTxt.textContent = 'No active timer';
+        if (badge) { badge.textContent = 'READY TO TRACK'; badge.className = 'badge badge-info'; }
+        document.getElementById('meta-member').textContent = 'Select below';
+        document.getElementById('meta-software').textContent = 'Select below';
+        document.getElementById('meta-project').textContent = 'Select below';
+        document.getElementById('meta-file').textContent = '—';
+        if (btnStart) btnStart.style.display = 'inline-flex';
+        if (btnPause) btnPause.style.display = 'none';
+        if (btnStop) btnStop.style.display = 'none';
+      }
+    }
+
+    function restoreTimerLoop() {
+      if (timerInterval) clearInterval(timerInterval);
+      updateTimerUI();
+      if (appState.activeTimer) {
+        timerInterval = setInterval(updateTimerUI, 1000);
+      }
+    }
+
+    function startTimer() {
+      const err = document.getElementById('timer-error');
+      const memberId = document.getElementById('timer-member').value;
+      const softwareId = document.getElementById('timer-software').value;
+      const projectId = document.getElementById('timer-project').value;
+      const taskId = document.getElementById('timer-task').value;
+      const workFileName = document.getElementById('timer-file').value.trim();
+
+      if (!memberId || !softwareId || !projectId || !workFileName) {
+        if (err) { err.textContent = 'Please select member, software, project, and enter a work/file name.'; err.style.display = 'block'; }
+        return;
+      }
+      if (err) err.style.display = 'none';
+
+      appState.activeTimer = {
+        memberId,
+        softwareId,
+        projectId,
+        taskId,
+        workFileName,
+        initialStartIso: new Date().toISOString(),
+        startedAtMs: Date.now(),
+        accumulatedMs: 0,
+        isPaused: false
+      };
+      addActivity(`${getMemberName(memberId)} started timer in ${getSoftwareName(softwareId)}`);
+      saveState();
+      restoreTimerLoop();
+      showToast('Timer started');
+    }
+
+    function pauseOrResumeTimer() {
+      const t = appState.activeTimer;
+      if (!t) return;
+      if (t.isPaused) {
+        t.startedAtMs = Date.now();
+        t.isPaused = false;
+      } else {
+        t.accumulatedMs = (t.accumulatedMs || 0) + Math.max(0, Date.now() - t.startedAtMs);
+        t.startedAtMs = null;
+        t.isPaused = true;
+      }
+      saveState();
+      updateTimerUI();
+    }
+
+    function stopTimer(btn) {
+      const t = appState.activeTimer;
+      if (!t) return;
+      if (btn && btn.dataset.armed !== 'true') {
+        btn.dataset.armed = 'true';
+        btn.textContent = 'Confirm Stop';
+        setTimeout(() => { if (btn) { btn.dataset.armed = 'false'; btn.textContent = 'Stop & Save'; } }, 3000);
+        return;
+      }
+      const durationSeconds = Math.max(1, getActiveElapsedSeconds());
+      const endIso = new Date().toISOString();
+      appState.timeLogs.unshift({
+        id: uid('time'),
+        memberId: t.memberId,
+        softwareId: t.softwareId,
+        projectId: t.projectId,
+        taskId: t.taskId || '',
+        workFileName: t.workFileName,
+        startTime: t.initialStartIso,
+        endTime: endIso,
+        durationSeconds,
+        entryType: 'timer'
+      });
+      addActivity(`${getMemberName(t.memberId)} logged ${formatDuration(durationSeconds)} in ${getSoftwareName(t.softwareId)}`);
+      appState.activeTimer = null;
+      if (btn) { btn.dataset.armed = 'false'; btn.textContent = 'Stop & Save'; }
+      saveState();
+      restoreTimerLoop();
+      renderTimeTrackerView();
+      showToast('Time session saved to logs');
+    }
+
+    function renderTimeTrackerView() {
+      updateTimerUI();
+      const fm = document.getElementById('filter-time-member')?.value || 'all';
+      const fs = document.getElementById('filter-time-software')?.value || 'all';
+      const fp = document.getElementById('filter-time-project')?.value || 'all';
+
+      const logs = appState.timeLogs.filter(l => {
+        if (fm !== 'all' && l.memberId !== fm) return false;
+        if (fs !== 'all' && l.softwareId !== fs) return false;
+        if (fp !== 'all' && l.projectId !== fp) return false;
+        return true;
+      });
+
+      const totalSec = logs.reduce((a, b) => a + (b.durationSeconds || 0), 0);
+      const totEl = document.getElementById('time-filtered-total');
+      if (totEl) totEl.textContent = formatDuration(totalSec);
+
+      const tbody = document.getElementById('time-logs-tbody');
+      if (!tbody) return;
+      if (!logs.length) {
+        tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state">No time records match these filters.</div></td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = logs.map(l => {
+        const sStr = l.startTime ? new Date(l.startTime).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+        const eStr = l.endTime ? new Date(l.endTime).toLocaleString([], { hour: '2-digit', minute: '2-digit' }) : '—';
+        return `
+          <tr>
+            <td><strong>${esc(getMemberName(l.memberId))}</strong></td>
+            <td>${esc(getSoftwareName(l.softwareId))}</td>
+            <td>${esc(getProjectTitle(l.projectId))}</td>
+            <td class="mono" style="font-size:0.8125rem;">${esc(l.workFileName)}</td>
+            <td class="mono" style="font-size:0.8125rem;">${esc(sStr)}</td>
+            <td class="mono" style="font-size:0.8125rem;">${esc(eStr)}</td>
+            <td class="mono"><strong>${formatDuration(l.durationSeconds)}</strong></td>
+            <td><span class="badge ${l.entryType === 'manual' ? 'badge-warning' : 'badge-neutral'}">${esc(l.entryType === 'manual' ? 'Manual' : 'Timer')}</span></td>
+            <td class="text-right"><button type="button" class="btn btn-sm btn-danger-outline" onclick="deleteTimeLog('${esc(l.id)}', this)">Delete</button></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function deleteTimeLog(id, btn) {
+      if (btn.dataset.armed !== 'true') {
+        btn.dataset.armed = 'true';
+        btn.textContent = 'Confirm?';
+        setTimeout(() => { if (btn) { btn.dataset.armed = 'false'; btn.textContent = 'Delete'; } }, 3000);
+        return;
+      }
+      appState.timeLogs = appState.timeLogs.filter(x => x.id !== id);
+      saveState();
+      renderTimeTrackerView();
+      showToast('Time entry deleted');
+    }
+
+    function openManualTimeModal() {
+      const memOpts = appState.members.map(m => `<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('');
+      const softOpts = appState.software.filter(s => s.enabled).map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');
+      const prjOpts = appState.projects.map(p => `<option value="${esc(p.id)}">${esc(p.title)}</option>`).join('');
+
+      openModal('Add Manual Time Entry', `
+        <form onsubmit="saveManualTime(event)">
+          <div class="form-grid-2" style="margin-bottom:0.75rem;">
+            <div class="field"><label for="m-field-time-mem">Member</label><select id="m-field-time-mem" name="timeMem" class="select">${memOpts}</select></div>
+            <div class="field"><label for="m-field-time-soft">Software</label><select id="m-field-time-soft" name="timeSoft" class="select">${softOpts}</select></div>
+            <div class="field"><label for="m-field-time-prj">Project</label><select id="m-field-time-prj" name="timePrj" class="select">${prjOpts}</select></div>
+            <div class="field"><label for="m-field-time-file">Work / File Name *</label><input id="m-field-time-file" name="timeFile" type="text" class="input" required placeholder="Scene_04_Edit.prproj"></div>
+            <div class="field"><label for="m-field-time-hrs">Hours</label><input id="m-field-time-hrs" name="timeHrs" type="number" min="0" max="24" value="1" class="input"></div>
+            <div class="field"><label for="m-field-time-mins">Minutes</label><input id="m-field-time-mins" name="timeMins" type="number" min="0" max="59" value="30" class="input"></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:0.5rem;">
+            <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Manual Entry</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function saveManualTime(ev) {
+      ev.preventDefault();
+      const form = ev.target;
+      const hrsEl = form.elements.timeHrs;
+      const minsEl = form.elements.timeMins;
+      const memEl = form.elements.timeMem;
+      const softEl = form.elements.timeSoft;
+      const prjEl = form.elements.timePrj;
+      const fileEl = form.elements.timeFile;
+      if (!hrsEl || !minsEl || !memEl || !softEl || !prjEl || !fileEl) return;
+
+      const hrs = Number(hrsEl.value || 0);
+      const mins = Number(minsEl.value || 0);
+      const dur = Math.max(60, Math.round((hrs * 3600) + (mins * 60)));
+      const now = new Date();
+      const start = new Date(now.getTime() - dur * 1000);
+      appState.timeLogs.unshift({
+        id: uid('time'),
+        memberId: memEl.value,
+        softwareId: softEl.value,
+        projectId: prjEl.value,
+        taskId: '',
+        workFileName: fileEl.value.trim(),
+        startTime: start.toISOString(),
+        endTime: now.toISOString(),
+        durationSeconds: dur,
+        entryType: 'manual'
+      });
+      saveState();
+      closeModal();
+      renderTimeTrackerView();
+      showToast('Manual entry added');
+    }
+
+    function openSoftwareModal() {
+      const listHtml = appState.software.map(s => {
+        const usedCount = appState.timeLogs.filter(l => l.softwareId === s.id).length;
+        return `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--outline-variant);">
+            <div><strong>${esc(s.name)}</strong> <span class="mono" style="font-size:0.75rem;color:var(--on-surface-variant);">(${usedCount} logs)</span></div>
+            <div style="display:flex;gap:0.4rem;">
+              <button type="button" class="btn btn-sm btn-outline" onclick="toggleSoftware('${esc(s.id)}')">${s.enabled ? 'Disable' : 'Enable'}</button>
+              <button type="button" class="btn btn-sm btn-danger-outline" onclick="removeSoftware('${esc(s.id)}', this)">Remove</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      openModal('Manage Editing Software', `
+        <form onsubmit="addSoftware(event)" style="display:flex;gap:0.5rem;align-items:end;margin-bottom:1rem;">
+          <div class="field" style="flex:1;">
+            <label for="m-field-software-name">Add Software Name</label>
+            <input id="m-field-software-name" name="softwareName" type="text" class="input" required placeholder="e.g., Adobe Audition, Blender, CapCut">
+          </div>
+          <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+        <div>${listHtml}</div>
+      `);
+    }
+
+    function addSoftware(ev) {
+      ev.preventDefault();
+      const nameEl = ev.target.elements.softwareName;
+      if (!nameEl) return;
+      const name = nameEl.value.trim();
+      if (!name) return;
+      appState.software.push({ id: uid('soft'), name, enabled: true });
+      saveState();
+      populateAllDropdowns();
+      openSoftwareModal();
+      showToast('Software added');
+    }
+
+    function toggleSoftware(id) {
+      const s = appState.software.find(x => x.id === id);
+      if (s) s.enabled = !s.enabled;
+      saveState();
+      populateAllDropdowns();
+      openSoftwareModal();
+    }
+
+    function removeSoftware(id, btn) {
+      const used = appState.timeLogs.some(l => l.softwareId === id);
+      if (btn.dataset.armed !== 'true') {
+        btn.dataset.armed = 'true';
+        btn.textContent = used ? 'Used in logs! Confirm' : 'Confirm?';
+        setTimeout(() => { if (btn) { btn.dataset.armed = 'false'; btn.textContent = 'Remove'; } }, 3500);
+        return;
+      }
+      appState.software = appState.software.filter(x => x.id !== id);
+      saveState();
+      populateAllDropdowns();
+      openSoftwareModal();
+      showToast('Software removed');
+    }
+
+    function exportTimeCsv() {
+      const rows = [['Member', 'Software', 'Project', 'WorkFile', 'StartTime', 'EndTime', 'DurationSeconds', 'Type']];
+      appState.timeLogs.forEach(l => {
+        rows.push([
+          getMemberName(l.memberId),
+          getSoftwareName(l.softwareId),
+          getProjectTitle(l.projectId),
+          l.workFileName,
+          l.startTime,
+          l.endTime,
+          l.durationSeconds,
+          l.entryType
+        ]);
+      });
+      const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+      if (window.notebookAppApi && typeof window.notebookAppApi.triggerFileDownload === 'function') {
+        window.notebookAppApi.triggerFileDownload({ content: csv, contentType: 'text/csv', encoding: 'UTF-8', filename: 'editflow-time-logs.csv' });
+        showToast('Exported CSV');
+      }
+    }
+
+    // --- 4. MEMBERS ---
+    function renderMembersView() {
+      const q = (document.getElementById('filter-member-search')?.value || '').trim().toLowerCase();
+      const pres = document.getElementById('filter-member-presence')?.value || 'all';
+      const st = document.getElementById('filter-member-status')?.value || 'all';
+
+      const list = appState.members.filter(m => {
+        if (pres !== 'all' && m.presence !== pres) return false;
+        if (st !== 'all' && m.status !== st) return false;
+        if (q && !(m.name + ' ' + m.jobTitle + ' ' + m.department).toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      const grid = document.getElementById('members-grid');
+      if (!grid) return;
+      if (!list.length) {
+        grid.innerHTML = `<div class="empty-state">No members match these filters.</div>`;
+        return;
+      }
+
+      grid.innerHTML = list.map(m => {
+        const assignedCount = appState.projects.filter(p => (p.memberIds || []).includes(m.id)).length;
+        const hrs = appState.timeLogs.filter(l => l.memberId === m.id).reduce((a, b) => a + (b.durationSeconds || 0), 0) / 3600;
+        const initials = m.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+        return `
+          <div class="card" style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;">
+              <div style="display:flex;align-items:center;gap:0.75rem;">
+                <div class="avatar-dot" style="width:42px;height:42px;font-size:0.9rem;">${esc(initials)}</div>
+                <div>
+                  <strong style="font-size:1rem;">${esc(m.name)}</strong>
+                  <div style="font-size:0.8125rem;color:var(--on-surface-variant);">${esc(m.jobTitle)}</div>
+                </div>
+              </div>
+              <span class="badge ${m.presence === 'online' ? 'badge-success' : 'badge-danger'}">
+                <span class="dot ${m.presence === 'online' ? 'dot-online' : 'dot-offline'}"></span>
+                ${m.presence === 'online' ? 'Online' : 'Offline'}
+              </span>
+            </div>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;font-size:0.8125rem;">
+              <span class="badge ${m.status === 'active' ? 'badge-info' : 'badge-neutral'}">${m.status === 'active' ? 'Active Account' : 'Inactive'}</span>
+              <span class="badge badge-neutral">${esc(m.role)}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;padding-top:0.5rem;border-top:1px solid var(--outline-variant);font-size:0.8125rem;">
+              <div><span style="color:var(--on-surface-variant);">Projects:</span> <strong class="mono">${assignedCount}</strong></div>
+              <div><span style="color:var(--on-surface-variant);">Logged:</span> <strong class="mono">${hrs.toFixed(1)}h</strong></div>
+            </div>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+              <button type="button" class="btn btn-sm btn-outline" onclick="togglePresence('${esc(m.id)}')">Toggle Presence</button>
+              <button type="button" class="btn btn-sm btn-outline" onclick="openMemberModal('${esc(m.id)}')">Edit Profile</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function togglePresence(id) {
+      const m = appState.members.find(x => x.id === id);
+      if (!m) return;
+      m.presence = m.presence === 'online' ? 'offline' : 'online';
+      saveState();
+      renderMembersView();
+      showToast(`${m.name} is now ${m.presence} (simulated)`);
+    }
+
+    function openMemberModal(editId) {
+      const m = editId ? appState.members.find(x => x.id === editId) : null;
+      openModal(m ? 'Edit Member Profile' : 'Register Company Member', `
+        <form onsubmit="saveMemberForm(event, '${esc(editId || '')}')">
+          <div class="form-grid-2" style="margin-bottom:0.75rem;">
+            <div class="field"><label for="m-field-mem-name">Full Name *</label><input id="m-field-mem-name" name="memName" type="text" class="input" required value="${esc(m ? m.name : '')}"></div>
+            <div class="field"><label for="m-field-mem-email">Email *</label><input id="m-field-mem-email" name="memEmail" type="email" class="input" required value="${esc(m ? m.email : '')}"></div>
+            <div class="field"><label for="m-field-mem-title">Job Title *</label><input id="m-field-mem-title" name="memTitle" type="text" class="input" required value="${esc(m ? m.jobTitle : '')}"></div>
+            <div class="field"><label for="m-field-mem-dept">Department</label><input id="m-field-mem-dept" name="memDept" type="text" class="input" value="${esc(m ? m.department : 'Post Production')}"></div>
+            <div class="field">
+              <label for="m-field-mem-role">Role</label>
+              <select id="m-field-mem-role" name="memRole" class="select">
+                <option value="Video Editor" ${!m || m.role === 'Video Editor' ? 'selected' : ''}>Video Editor</option>
+                <option value="Motion Designer" ${m && m.role === 'Motion Designer' ? 'selected' : ''}>Motion Designer</option>
+                <option value="Project Manager" ${m && m.role === 'Project Manager' ? 'selected' : ''}>Project Manager</option>
+                <option value="Admin" ${m && m.role === 'Admin' ? 'selected' : ''}>Admin</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="m-field-mem-status">Account Status</label>
+              <select id="m-field-mem-status" name="memStatus" class="select">
+                <option value="active" ${!m || m.status === 'active' ? 'selected' : ''}>Active</option>
+                <option value="inactive" ${m && m.status === 'inactive' ? 'selected' : ''}>Inactive</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:0.5rem;">
+            <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">${m ? 'Save Member' : 'Register Member'}</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function saveMemberForm(ev, editId) {
+      ev.preventDefault();
+      const form = ev.target;
+      const nameEl = form.elements.memName;
+      const emailEl = form.elements.memEmail;
+      const titleEl = form.elements.memTitle;
+      const deptEl = form.elements.memDept;
+      const roleEl = form.elements.memRole;
+      const statusEl = form.elements.memStatus;
+      if (!nameEl || !emailEl || !titleEl || !deptEl || !roleEl || !statusEl) return;
+
+      const name = nameEl.value.trim();
+      const email = emailEl.value.trim();
+      const jobTitle = titleEl.value.trim();
+      if (!name || !email || !jobTitle) return;
+
+      const existing = editId ? appState.members.find(x => x.id === editId) : null;
+      const rec = {
+        id: editId || uid('mem'),
+        name,
+        email,
+        jobTitle,
+        department: deptEl.value.trim(),
+        role: roleEl.value,
+        status: statusEl.value,
+        presence: existing ? existing.presence : 'online'
+      };
+      if (editId) {
+        const idx = appState.members.findIndex(x => x.id === editId);
+        if (idx >= 0) appState.members[idx] = rec;
+      } else {
+        appState.members.push(rec);
+        addActivity(`Registered new member: ${name} (${jobTitle})`);
+      }
+      saveState();
+      populateAllDropdowns();
+      closeModal();
+      renderMembersView();
+      showToast(editId ? 'Member updated' : 'Member registered');
+    }
+
+    // --- 5. PROJECT OVERVIEW ---
+    function getProjectProgress(projectId) {
+      const tasks = appState.tasks.filter(t => t.projectId === projectId);
+      if (!tasks.length) return 0;
+      const done = tasks.filter(t => t.status === 'completed').length;
+      return Math.round((done / tasks.length) * 100);
+    }
+
+    function renderProjectOverviewView() {
+      const q = (document.getElementById('filter-overview-search')?.value || '').trim().toLowerCase();
+      const st = document.getElementById('filter-overview-status')?.value || 'all';
+      const sortBy = document.getElementById('sort-overview')?.value || 'dueDate';
+
+      let list = appState.projects.filter(p => {
+        if (st !== 'all' && p.status !== st) return false;
+        if (q && !(p.title + ' ' + p.ref).toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      list.sort((a, b) => {
+        if (sortBy === 'progress') return getProjectProgress(b.id) - getProjectProgress(a.id);
+        return (a.dueDate || '9999').localeCompare(b.dueDate || '9999');
+      });
+
+      const grid = document.getElementById('project-overview-grid');
+      if (!grid) return;
+      if (!list.length) {
+        grid.innerHTML = `<div class="empty-state">No projects match your criteria.</div>`;
+        return;
+      }
+
+      grid.innerHTML = list.map(p => {
+        const tasks = appState.tasks.filter(t => t.projectId === p.id);
+        const done = tasks.filter(t => t.status === 'completed').length;
+        const pct = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
+        const memberNames = (p.memberIds || []).map(getMemberName).join(', ') || 'None assigned';
+        return `
+          <div class="card" style="display:flex;flex-direction:column;gap:0.75rem;">
+            <div style="display:flex;justify-content:space-between;align-items:start;gap:0.5rem;">
+              <div>
+                <span class="mono" style="font-size:0.72rem;color:var(--on-surface-variant);">${esc(p.ref)}</span>
+                <h3 style="margin:0.15rem 0 0;font-size:1.0625rem;">${esc(p.title)}</h3>
+              </div>
+              <select class="select" style="width:auto;min-height:32px;padding:0.2rem 0.5rem;font-size:0.75rem;" aria-label="Project Status" onchange="changeProjectStatus('${esc(p.id)}', this.value)">
+                <option value="pending" ${p.status === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="not_started" ${p.status === 'not_started' ? 'selected' : ''}>Not Started</option>
+                <option value="in_progress" ${p.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                <option value="under_review" ${p.status === 'under_review' ? 'selected' : ''}>Under Review</option>
+                <option value="overdue" ${p.status === 'overdue' ? 'selected' : ''}>Overdue</option>
+                <option value="completed" ${p.status === 'completed' ? 'selected' : ''}>Completed</option>
+                <option value="on_hold" ${p.status === 'on_hold' ? 'selected' : ''}>On Hold</option>
+              </select>
+            </div>
+            <div style="font-size:0.8125rem;color:var(--on-surface-variant);"><strong>Team:</strong> ${esc(memberNames)}</div>
+            <div>
+              <div style="display:flex;justify-content:space-between;font-size:0.8125rem;margin-bottom:0.3rem;">
+                <span>${tasks.length ? `${done} of ${tasks.length} tasks completed` : 'No tasks yet'}</span>
+                <strong class="mono">${pct}%</strong>
+              </div>
+              <div class="progress-track"><div class="progress-fill" style="width:${pct}%;"></div></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.8125rem;color:var(--on-surface-variant);">
+              <span>Start: <strong class="mono">${esc(p.startDate)}</strong></span>
+              <span>Deadline: <strong class="mono">${esc(p.dueDate)}</strong></span>
+            </div>
+            <div style="padding-top:0.5rem;border-top:1px solid var(--outline-variant);display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
+              ${p.finalOutputUrl
+                ? `<span class="badge badge-success">${esc(p.outputType || 'Link')} Ready</span>`
+                : `<span class="badge badge-neutral">No Final Output</span>`}
+              <div style="display:flex;gap:0.4rem;">
+                ${p.finalOutputUrl ? `<button type="button" class="btn btn-sm btn-outline" onclick="inspectOutputLink('${esc(p.id)}')">Inspect URL</button>` : ''}
+                <button type="button" class="btn btn-sm btn-primary" onclick="openOutputLinkModal('${esc(p.id)}')">${p.finalOutputUrl ? 'Edit Output' : 'Add Output Link'}</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function changeProjectStatus(id, status) {
+      const p = appState.projects.find(x => x.id === id);
+      if (!p) return;
+      p.status = status;
+      p.updatedAt = '2026-11-22';
+      addActivity(`Project "${p.title}" status updated to ${status.replace('_', ' ')}`);
+      saveState();
+      showToast('Project status updated');
+    }
+
+    function openProjectModal() {
+      const memBoxes = appState.members.map(m => `
+        <label style="display:inline-flex;align-items:center;gap:0.35rem;font-size:0.8125rem;margin-right:0.75rem;">
+          <input type="checkbox" name="prj-mem" value="${esc(m.id)}"> ${esc(m.name)}
+        </label>
+      `).join('');
+
+      openModal('Create New Project', `
+        <form onsubmit="saveProjectForm(event)">
+          <div class="form-grid-2" style="margin-bottom:0.75rem;">
+            <div class="field"><label for="m-field-prj-title">Project Title *</label><input id="m-field-prj-title" name="prjTitle" type="text" class="input" required></div>
+            <div class="field"><label for="m-field-prj-ref">Reference ID</label><input id="m-field-prj-ref" name="prjRef" type="text" class="input" value="EF-${105 + appState.projects.length}"></div>
+            <div class="field"><label for="m-field-prj-start">Start Date</label><input id="m-field-prj-start" name="prjStart" type="date" class="input" value="2026-11-22"></div>
+            <div class="field"><label for="m-field-prj-due">Deadline</label><input id="m-field-prj-due" name="prjDue" type="date" class="input" value="2026-12-05"></div>
+          </div>
+          <div class="field" style="margin-bottom:1rem;">
+            <label>Assign Members</label>
+            <div>${memBoxes}</div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:0.5rem;">
+            <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create Project</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function saveProjectForm(ev) {
+      ev.preventDefault();
+      const form = ev.target;
+      const titleEl = form.elements.prjTitle;
+      const refEl = form.elements.prjRef;
+      const startEl = form.elements.prjStart;
+      const dueEl = form.elements.prjDue;
+      if (!titleEl || !refEl || !startEl || !dueEl) return;
+      const title = titleEl.value.trim();
+      if (!title) return;
+      const checked = Array.from(document.querySelectorAll('input[name="prj-mem"]:checked')).map(c => c.value);
+      appState.projects.unshift({
+        id: uid('prj'),
+        ref: refEl.value.trim() || 'EF-NEW',
+        title,
+        status: 'not_started',
+        priority: 'medium',
+        memberIds: checked,
+        startDate: startEl.value,
+        dueDate: dueEl.value,
+        finalOutputUrl: '',
+        outputTitle: '',
+        outputType: 'Vimeo',
+        deliveryStatus: 'not_delivered',
+        updatedAt: '2026-11-22'
+      });
+      addActivity(`Created project "${title}"`);
+      saveState();
+      populateAllDropdowns();
+      closeModal();
+      renderCurrentView();
+      showToast('Project created');
+    }
+
+    function openOutputLinkModal(id) {
+      const p = appState.projects.find(x => x.id === id);
+      if (!p) return;
+      openModal(`Final Output Deliverable — ${p.title}`, `
+        <form onsubmit="saveOutputLink(event, '${esc(id)}')">
+          <div class="field" style="margin-bottom:0.75rem;">
+            <label for="m-field-out-title">Output Title</label>
+            <input id="m-field-out-title" name="outTitle" type="text" class="input" value="${esc(p.outputTitle || p.title + ' Master')}">
+          </div>
+          <div class="form-grid-2" style="margin-bottom:0.75rem;">
+            <div class="field">
+              <label for="m-field-out-type">Platform</label>
+              <select id="m-field-out-type" name="outType" class="select">
+                <option value="YouTube" ${p.outputType === 'YouTube' ? 'selected' : ''}>YouTube</option>
+                <option value="Drive" ${p.outputType === 'Drive' ? 'selected' : ''}>Google Drive</option>
+                <option value="Vimeo" ${p.outputType === 'Vimeo' ? 'selected' : ''}>Vimeo</option>
+                <option value="Other" ${p.outputType === 'Other' ? 'selected' : ''}>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="m-field-out-status">Delivery Status</label>
+              <select id="m-field-out-status" name="outStatus" class="select">
+                <option value="in_review" ${p.deliveryStatus === 'in_review' ? 'selected' : ''}>In Review</option>
+                <option value="delivered" ${p.deliveryStatus === 'delivered' ? 'selected' : ''}>Delivered</option>
+              </select>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:1rem;">
+            <label for="m-field-out-url">Delivery URL (https://...) *</label>
+            <input id="m-field-out-url" name="outUrl" type="url" class="input" required placeholder="https://example.com/deliverables/final-cut" value="${esc(p.finalOutputUrl || '')}">
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:0.5rem;">
+            <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Output Link</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function saveOutputLink(ev, id) {
+      ev.preventDefault();
+      const form = ev.target;
+      const p = appState.projects.find(x => x.id === id);
+      const tEl = form.elements.outTitle;
+      const tyEl = form.elements.outType;
+      const stEl = form.elements.outStatus;
+      const uEl = form.elements.outUrl;
+      if (!p || !tEl || !tyEl || !stEl || !uEl) return;
+      p.outputTitle = tEl.value.trim();
+      p.outputType = tyEl.value;
+      p.deliveryStatus = stEl.value;
+      p.finalOutputUrl = uEl.value.trim();
+      p.updatedAt = '2026-11-22';
+      addActivity(`Final output link saved for ${p.title}`);
+      saveState();
+      closeModal();
+      renderProjectOverviewView();
+      showToast('Deliverable link saved');
+    }
+
+    function inspectOutputLink(id) {
+      const p = appState.projects.find(x => x.id === id);
+      if (!p) return;
+      openModal('Deliverable Link Inspector', `
+        <p style="margin-top:0;color:var(--on-surface-variant);font-size:0.875rem;">Stored locally for <strong>${esc(p.title)}</strong> (${esc(p.outputType)}):</p>
+        <div style="padding:0.75rem;background:var(--surface-container-low);border:1px solid var(--outline-variant);border-radius:var(--radius-control);word-break:break-all;" class="mono">${esc(p.finalOutputUrl)}</div>
+        <p style="font-size:0.8125rem;color:var(--on-surface-variant);margin-bottom:0;">External navigation is disabled inside the sandboxed preview. Copy this verified URL into a browser tab to open the deliverable.</p>
+      `);
+    }
+
+    // --- 6. FINANCE TRACKER ---
+    function renderFinanceView() {
+      const fm = document.getElementById('filter-fin-member')?.value || 'all';
+      const fp = document.getElementById('filter-fin-project')?.value || 'all';
+      const fs = document.getElementById('filter-fin-status')?.value || 'all';
+
+      let sumDue = 0, sumPaid = 0, sumBal = 0, sumAdv = 0, sumOt = 0;
+      const list = appState.financeRecords.filter(r => {
+        const calc = calcFinanceTotals(r);
+        if (fm !== 'all' && r.memberId !== fm) return false;
+        if (fp !== 'all' && r.projectId !== fp) return false;
+        if (fs !== 'all' && calc.status !== fs) return false;
+        return true;
+      });
+
+      list.forEach(r => {
+        const c = calcFinanceTotals(r);
+        sumDue += c.totalDue;
+        sumPaid += c.paid;
+        sumBal += c.balance;
+        sumAdv += Number(r.advancePaid || 0);
+        sumOt += Number(r.overtimeHours || 0) * Number(r.overtimeRate || 0);
+      });
+
+      const kpiEl = document.getElementById('finance-kpis');
+      if (kpiEl) {
+        kpiEl.innerHTML = [
+          ['Total Payable', fmtMoney(sumDue)],
+          ['Total Paid', fmtMoney(sumPaid)],
+          ['Remaining Balance', fmtMoney(sumBal)],
+          ['Advances Paid', fmtMoney(sumAdv)],
+          ['Overtime Payable', fmtMoney(sumOt)]
+        ].map(k => `<div class="kpi-card"><div class="kpi-top">${esc(k[0])}</div><div class="kpi-val">${esc(k[1])}</div></div>`).join('');
+      }
+
+      const tbody = document.getElementById('finance-tbody');
+      if (tbody) {
+        if (!list.length) {
+          tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state">No payment records available.</div></td></tr>`;
+        } else {
+          tbody.innerHTML = list.map(r => {
+            const c = calcFinanceTotals(r);
+            const rateStr = r.rateType === 'fixed' ? `${fmtMoney(r.rate)} fixed` : `${fmtMoney(r.rate)}/hr`;
+            return `
+              <tr>
+                <td><strong>${esc(getMemberName(r.memberId))}</strong></td>
+                <td>${esc(getProjectTitle(r.projectId))}</td>
+                <td class="mono">${esc(rateStr)}</td>
+                <td class="mono text-right">${r.rateType === 'fixed' ? '—' : r.regularHours + 'h'}</td>
+                <td class="mono text-right">${r.overtimeHours ? r.overtimeHours + 'h' : '—'}</td>
+                <td class="mono text-right"><strong>${fmtMoney(c.totalDue)}</strong></td>
+                <td class="mono text-right" style="color:var(--color-success);">${fmtMoney(c.paid)}</td>
+                <td class="mono text-right">${fmtMoney(c.balance)}</td>
+                <td>${statusBadge(c.status)}</td>
+                <td>${statusBadge(r.invoiceStatus || 'none')}</td>
+                <td class="text-right"><button type="button" class="btn btn-sm btn-outline" onclick="openPaymentModal('${esc(r.id)}')">Pay</button></td>
+              </tr>
+            `;
+          }).join('');
+        }
+      }
+
+      const invEl = document.getElementById('invoices-list');
+      if (invEl) {
+        invEl.innerHTML = appState.invoices.length ? appState.invoices.map(i => `
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.75rem;padding:0.65rem 0;border-bottom:1px solid var(--outline-variant);flex-wrap:wrap;">
+            <div>
+              <strong class="mono">${esc(i.invoiceNumber)}</strong> · ${esc(getMemberName(i.memberId))} (${esc(getProjectTitle(i.projectId))})
+              <div style="font-size:0.75rem;color:var(--on-surface-variant);">${esc(i.fileName || 'No file')} · ${esc(i.description)}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <strong class="mono">${fmtMoney(i.amount)}</strong>
+              ${statusBadge(i.status)}
+              ${i.status === 'submitted' ? `<button type="button" class="btn btn-sm btn-success" onclick="approveInvoice('${esc(i.id)}')">Approve</button>` : ''}
+            </div>
+          </div>
+        `).join('') : `<div class="empty-state">No invoices submitted yet.</div>`;
+      }
+
+      const payEl = document.getElementById('payment-history-list');
+      if (payEl) {
+        payEl.innerHTML = appState.payments.length ? appState.payments.map(p => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid var(--outline-variant);font-size:0.8125rem;">
+            <div><strong>${esc(getMemberName(p.memberId))}</strong> — ${esc(getProjectTitle(p.projectId))}<div class="mono" style="font-size:0.72rem;color:var(--on-surface-variant);">${esc(p.date)} · ${esc(p.method)} · ${esc(p.reference)}</div></div>
+            <div class="text-right"><strong class="mono" style="color:var(--color-success);">+${fmtMoney(p.amount)}</strong><div><span class="badge badge-neutral">${esc(p.type)}</span></div></div>
+          </div>
+        `).join('') : `<div class="empty-state">No payment transactions recorded.</div>`;
+      }
+    }
+
+    function approveInvoice(id) {
+      const inv = appState.invoices.find(x => x.id === id);
+      if (!inv) return;
+      inv.status = 'approved';
+      const fin = appState.financeRecords.find(f => f.memberId === inv.memberId && f.projectId === inv.projectId);
+      if (fin) fin.invoiceStatus = 'approved';
+      addActivity(`Approved invoice ${inv.invoiceNumber} for ${getMemberName(inv.memberId)}`);
+      saveState();
+      renderFinanceView();
+      showToast('Invoice approved');
+    }
+
+    function openFinanceRecordModal() {
+      const memOpts = appState.members.map(m => `<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('');
+      const prjOpts = appState.projects.map(p => `<option value="${esc(p.id)}">${esc(p.title)}</option>`).join('');
+      openModal('Add Member-Project Rate Record', `
+        <form onsubmit="saveFinanceRecord(event)">
+          <div class="form-grid-2" style="margin-bottom:0.75rem;">
+            <div class="field"><label for="m-field-fin-mem">Member</label><select id="m-field-fin-mem" name="finMem" class="select">${memOpts}</select></div>
+            <div class="field"><label for="m-field-fin-prj">Project</label><select id="m-field-fin-prj" name="finPrj" class="select">${prjOpts}</select></div>
+            <div class="field"><label for="m-field-fin-rtype">Rate Type</label><select id="m-field-fin-rtype" name="finRtype" class="select"><option value="hourly">Hourly</option><option value="fixed">Fixed Project Fee</option></select></div>
+            <div class="field"><label for="m-field-fin-rate">Agreed Rate (${esc(appState.settings.currency)})</label><input id="m-field-fin-rate" name="finRate" type="number" min="0" step="1" value="22" class="input"></div>
+            <div class="field"><label for="m-field-fin-hrs">Regular Hours</label><input id="m-field-fin-hrs" name="finHrs" type="number" min="0" step="0.5" value="8" class="input"></div>
+            <div class="field"><label for="m-field-fin-ot">Overtime Hours</label><input id="m-field-fin-ot" name="finOt" type="number" min="0" step="0.5" value="0" class="input"></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:0.5rem;">
+            <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Record</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function saveFinanceRecord(ev) {
+      ev.preventDefault();
+      const form = ev.target;
+      const rateEl = form.elements.finRate;
+      const rtypeEl = form.elements.finRtype;
+      const memEl = form.elements.finMem;
+      const prjEl = form.elements.finPrj;
+      const hrsEl = form.elements.finHrs;
+      const otEl = form.elements.finOt;
+      if (!rateEl || !rtypeEl || !memEl || !prjEl || !hrsEl || !otEl) return;
+
+      const rate = Number(rateEl.value || 0);
+      const rtype = rtypeEl.value;
+      appState.financeRecords.unshift({
+        id: uid('fin'),
+        memberId: memEl.value,
+        projectId: prjEl.value,
+        rateType: rtype,
+        rate,
+        regularHours: Number(hrsEl.value || 0),
+        overtimeHours: Number(otEl.value || 0),
+        overtimeRate: rtype === 'hourly' ? Math.round(rate * Number(appState.settings.overtimeMultiplier || 1.5)) : 0,
+        advancePaid: 0,
+        amountPaid: 0,
+        paymentStatus: 'pending',
+        invoiceStatus: 'none'
+      });
+      saveState();
+      closeModal();
+      renderFinanceView();
+      showToast('Finance record added');
+    }
+
+    function openPaymentModal(finId) {
+      const rec = finId ? appState.financeRecords.find(x => x.id === finId) : appState.financeRecords[0];
+      const recOpts = appState.financeRecords.map(r => `<option value="${esc(r.id)}" ${rec && r.id === rec.id ? 'selected' : ''}>${esc(getMemberName(r.memberId))} — ${esc(getProjectTitle(r.projectId))} (Bal: ${fmtMoney(calcFinanceTotals(r).balance)})</option>`).join('');
+
+      openModal('Record Member Payment', `
+        <form onsubmit="savePaymentForm(event)">
+          <div class="field" style="margin-bottom:0.75rem;">
+            <label for="m-field-pay-rec">Target Finance Record</label>
+            <select id="m-field-pay-rec" name="payRec" class="select">${recOpts}</select>
+          </div>
+          <div class="form-grid-2" style="margin-bottom:0.75rem;">
+            <div class="field"><label for="m-field-pay-amt">Amount (${esc(appState.settings.currency)})</label><input id="m-field-pay-amt" name="payAmt" type="number" min="1" step="0.01" required value="${rec ? calcFinanceTotals(rec).balance : 50}" class="input"></div>
+            <div class="field"><label for="m-field-pay-type">Payment Type</label><select id="m-field-pay-type" name="payType" class="select"><option value="Partial">Partial</option><option value="Advance">Advance</option><option value="Final">Final</option><option value="Overtime">Overtime</option></select></div>
+            <div class="field"><label for="m-field-pay-method">Method</label><input id="m-field-pay-method" name="payMethod" type="text" class="input" value="Bank Transfer"></div>
+            <div class="field"><label for="m-field-pay-ref">Reference #</label><input id="m-field-pay-ref" name="payRef" type="text" class="input" value="TXN-${Math.floor(10000 + Math.random() * 89999)}"></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:0.5rem;">
+            <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Record Payment</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function savePaymentForm(ev) {
+      ev.preventDefault();
+      const form = ev.target;
+      const recEl = form.elements.payRec;
+      const amtEl = form.elements.payAmt;
+      const typeEl = form.elements.payType;
+      const methEl = form.elements.payMethod;
+      const refEl = form.elements.payRef;
+      if (!recEl || !amtEl || !typeEl || !methEl || !refEl) return;
+
+      const recId = recEl.value;
+      const rec = appState.financeRecords.find(x => x.id === recId);
+      if (!rec) return;
+      const amt = Number(amtEl.value || 0);
+      const pType = typeEl.value;
+      rec.amountPaid = Number(rec.amountPaid || 0) + amt;
+      if (pType === 'Advance') {
+        rec.advancePaid = Number(rec.advancePaid || 0) + amt;
+        rec.paymentStatus = 'advance_paid';
+      }
+      appState.payments.unshift({
+        id: uid('pay'),
+        memberId: rec.memberId,
+        projectId: rec.projectId,
+        amount: amt,
+        type: pType,
+        date: '2026-11-22',
+        method: methEl.value.trim(),
+        reference: refEl.value.trim(),
+        notes: ''
+      });
+      addActivity(`Recorded ${fmtMoney(amt)} ${pType} payment to ${getMemberName(rec.memberId)}`);
+      saveState();
+      closeModal();
+      renderFinanceView();
+      showToast('Payment recorded');
+    }
+
+    function openInvoiceModal() {
+      currentAttachmentPreview = null;
+      const memOpts = appState.members.map(m => `<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('');
+      const prjOpts = appState.projects.map(p => `<option value="${esc(p.id)}">${esc(p.title)}</option>`).join('');
+      const nextNum = (appState.settings.invoicePrefix || 'INV-2026-') + String(43 + appState.invoices.length).padStart(3, '0');
+
+      openModal('Submit Member Invoice (Local Preview)', `
+        <form onsubmit="saveInvoiceForm(event)">
+          <div class="form-grid-2" style="margin-bottom:0.75rem;">
+            <div class="field"><label for="m-field-inv-mem">Member</label><select id="m-field-inv-mem" name="invMem" class="select">${memOpts}</select></div>
+            <div class="field"><label for="m-field-inv-prj">Project</label><select id="m-field-inv-prj" name="invPrj" class="select">${prjOpts}</select></div>
+            <div class="field"><label for="m-field-inv-num">Invoice Number</label><input id="m-field-inv-num" name="invNum" type="text" class="input" required value="${esc(nextNum)}"></div>
+            <div class="field"><label for="m-field-inv-amt">Amount (${esc(appState.settings.currency)})</label><input id="m-field-inv-amt" name="invAmt" type="number" min="1" step="0.01" required value="180" class="input"></div>
+          </div>
+          <div class="field" style="margin-bottom:0.75rem;">
+            <label for="m-field-inv-desc">Description</label>
+            <input id="m-field-inv-desc" name="invDesc" type="text" class="input" required placeholder="Editing hours & deliverables">
+          </div>
+          <div class="field" style="margin-bottom:0.75rem;">
+            <label for="m-field-inv-file">Invoice Attachment (PDF or Image — local preview only)</label>
+            <input id="m-field-inv-file" type="file" accept=".pdf,image/*" class="input" onchange="handleInvoiceFileSelect(this)">
+            <div class="js-inv-preview" style="font-size:0.75rem;color:var(--on-surface-variant);margin-top:0.25rem;"></div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:0.5rem;">
+            <button type="button" class="btn btn-outline" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Submit Invoice</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function handleInvoiceFileSelect(input) {
+      const f = input.files && input.files[0];
+      const box = input.parentElement ? input.parentElement.querySelector('.js-inv-preview') : null;
+      if (!f || !box) return;
+      currentAttachmentPreview = f.name;
+      box.textContent = `Selected locally: ${f.name} (${Math.round(f.size / 1024)} KB). Note: Only metadata persists in prototype state.`;
+    }
+
+    function saveInvoiceForm(ev) {
+      ev.preventDefault();
+      const form = ev.target;
+      const memEl = form.elements.invMem;
+      const prjEl = form.elements.invPrj;
+      const numEl = form.elements.invNum;
+      const amtEl = form.elements.invAmt;
+      const descEl = form.elements.invDesc;
+      if (!memEl || !prjEl || !numEl || !amtEl || !descEl) return;
+
+      const memId = memEl.value;
+      const prjId = prjEl.value;
+      const num = numEl.value.trim();
+      appState.invoices.unshift({
+        id: uid('inv'),
+        memberId: memId,
+        projectId: prjId,
+        invoiceNumber: num,
+        date: '2026-11-22',
+        amount: Number(amtEl.value || 0),
+        description: descEl.value.trim(),
+        fileName: currentAttachmentPreview || 'Manual_Metadata_Only.pdf',
+        status: 'submitted',
+        note: 'Submitted locally'
+      });
+      const fin = appState.financeRecords.find(f => f.memberId === memId && f.projectId === prjId);
+      if (fin) fin.invoiceStatus = 'submitted';
+      addActivity(`Invoice ${num} submitted by ${getMemberName(memId)}`);
+      saveState();
+      closeModal();
+      renderFinanceView();
+      showToast('Invoice submitted');
+    }
+
+    // --- 7. SETTINGS & THEME ---
+    function applyThemeVars(themeObj) {
+      if (!themeObj) return;
+      const root = document.documentElement;
+      Object.entries(themeObj).forEach(([k, v]) => {
+        root.style.setProperty(k, v);
+      });
+      const brand = document.getElementById('sidebar-company-name');
+      if (brand && appState.settings.companyName) brand.textContent = appState.settings.companyName.toUpperCase();
+    }
+
+    function syncSettingsInputs() {
+      const s = appState.settings;
+      const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+      setVal('setting-preset', s.preset || 'navy_silver');
+      setVal('setting-company-name', s.companyName);
+      setVal('setting-email', s.email);
+      setVal('setting-currency', s.currency);
+      setVal('setting-workday', s.workdayHours);
+      setVal('setting-ot-mult', s.overtimeMultiplier);
+      setVal('setting-inv-prefix', s.invoicePrefix);
+
+      const t = s.theme || THEME_PRESETS.navy_silver;
+      const pairs = [
+        ['pick-primary', 'hex-primary', '--color-primary'],
+        ['pick-navy', 'hex-navy', '--color-navy-950'],
+        ['pick-page', 'hex-page', '--color-page'],
+        ['pick-surface', 'hex-surface', '--color-surface'],
+        ['pick-text', 'hex-text', '--color-text'],
+        ['pick-border', 'hex-border', '--color-border']
+      ];
+      pairs.forEach(([pId, hId, key]) => {
+        const val = t[key] || THEME_PRESETS.navy_silver[key];
+        setVal(pId, val);
+        const h = document.getElementById(hId);
+        if (h) h.textContent = val.toUpperCase();
+      });
+    }
+
+    function applyThemePreset(name) {
+      const preset = THEME_PRESETS[name] || THEME_PRESETS.navy_silver;
+      appState.settings.preset = name;
+      appState.settings.theme = Object.assign({}, preset);
+      applyThemeVars(appState.settings.theme);
+      syncSettingsInputs();
+      saveState();
+      showToast('Theme preset applied');
+    }
+
+    function liveColorPick(cssVar, hex) {
+      appState.settings.theme[cssVar] = hex;
+      applyThemeVars(appState.settings.theme);
+      syncSettingsInputs();
+      saveState();
+    }
+
+    function resetThemeDefaults() {
+      applyThemePreset('navy_silver');
+    }
+
+    function saveSettingsForm() {
+      appState.settings.companyName = document.getElementById('setting-company-name').value.trim() || 'EDIT FLOW';
+      appState.settings.email = document.getElementById('setting-email').value.trim();
+      appState.settings.currency = document.getElementById('setting-currency').value;
+      appState.settings.workdayHours = Number(document.getElementById('setting-workday').value || 8);
+      appState.settings.overtimeMultiplier = Number(document.getElementById('setting-ot-mult').value || 1.5);
+      appState.settings.invoicePrefix = document.getElementById('setting-inv-prefix').value.trim() || 'INV-2026-';
+      applyThemeVars(appState.settings.theme);
+      saveState();
+      showToast('Settings saved locally');
+    }
+
+    function renderSettingsView() {
+      syncSettingsInputs();
+      const box = document.getElementById('settings-software-list');
+      if (box) {
+        box.innerHTML = appState.software.map(s => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--outline-variant);">
+            <span>${esc(s.name)}</span>
+            <span class="badge ${s.enabled ? 'badge-success' : 'badge-neutral'}">${s.enabled ? 'Enabled' : 'Disabled'}</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    function exportWorkspaceJson() {
+      const json = JSON.stringify(appState, null, 2);
+      if (window.notebookAppApi && typeof window.notebookAppApi.triggerFileDownload === 'function') {
+        window.notebookAppApi.triggerFileDownload({ content: json, contentType: 'text/plain', encoding: 'UTF-8', filename: 'editflow-backup.json' });
+        showToast('Workspace JSON exported');
+      }
+    }
+
+    function importWorkspaceJson(input) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function () {
+        try {
+          const parsed = JSON.parse(reader.result);
+          if (parsed && Array.isArray(parsed.members) && Array.isArray(parsed.projects)) {
+            appState = parsed;
+            applyThemeVars(appState.settings.theme);
+            populateAllDropdowns();
+            saveState();
+            renderCurrentView();
+            showToast('Workspace backup imported');
+          } else {
+            showToast('Invalid Edit Flow backup JSON', 'error');
+          }
+        } catch (e) {
+          showToast('Could not parse JSON file', 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function restoreDemoData(btn) {
+      if (btn.dataset.armed !== 'true') {
+        btn.dataset.armed = 'true';
+        btn.textContent = 'Click again to confirm restore';
+        setTimeout(() => { if (btn) { btn.dataset.armed = 'false'; btn.textContent = 'Restore Sample Data'; } }, 3500);
+        return;
+      }
+      btn.dataset.armed = 'false';
+      btn.textContent = 'Restore Sample Data';
+      appState = createSampleState();
+      applyThemeVars(appState.settings.theme);
+      populateAllDropdowns();
+      restoreTimerLoop();
+      saveState();
+      renderCurrentView();
+      showToast('Sample data restored');
+    }
+
+    // --- Modal Control ---
+    function openModal(title, html) {
+      const modal = document.getElementById('app-modal');
+      const t = document.getElementById('modal-title');
+      const b = document.getElementById('modal-body');
+      if (t) t.textContent = title;
+      if (b) b.innerHTML = html;
+      if (modal) modal.classList.add('is-open');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('app-modal');
+      if (modal) modal.classList.remove('is-open');
+    }
+
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape') closeModal();
+    });
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
